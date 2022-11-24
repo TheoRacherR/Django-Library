@@ -1,0 +1,54 @@
+<nav class="navbar navbar-expand-lg bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand text-light" href="{% url 'index' %}">Library</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Books
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'add_book' %}">Add Books</a></li>
+                        <li><a class="dropdown-item" href="{% url 'list_books' %}">List books</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Libraries
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'add_library' %}">Add Libray</a></li>
+                        <li><a class="dropdown-item" href="{% url 'list_libraries' %}">List Libraries</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        People
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'list_peoples' %}">List People</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+            {% if user.is_authenticated %}
+                {% comment %} <div id="welcome_div">Welcome {{ user.username }}</div> {% endcomment %}
+                <form action="{% url 'logout_def' %}" method="post">
+                    {% csrf_token %}
+                    <fieldset>
+                        <input type="submit" class="btn btn-secondary" value="Logout" />
+                    </fieldset>
+                </form>
+                {% else %}
+                    <a class="btn btn-primary test" href="{% url 'login_def' %}" role="button">Log in</a>
+                    <a class="btn btn-success" href="{% url 'signin_def' %}" role="button">Sign in</a>
+            {% endif %}
+        </div>
+    </div>
+  </nav>

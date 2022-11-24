@@ -1,0 +1,41 @@
+{% extends 'lib/index.html' %}
+
+{% block content %}
+
+    <h1>Edit a {{ people.username }}</h1>
+  <form action="{% url 'edit_people' people.pk %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" id="username" value="{{ people.username }}">
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="text" name="email" class="form-control" id="email" value="{{ people.email }}">
+      </div>
+      <div class="mb-3">
+        <label for="role" class="form-label">Role</label>
+        <input type="text" name="role" class="form-control" id="role" value="{{ people.role }}">
+      </div>
+      <div class="mb-3">
+        <label for="library" class="form-label">Library rattached</label>
+        <select id="library" class="form-select" name="library">
+            {% comment %} <option selected="true" disabled="true" >Select a library</option> {% endcomment %}
+
+            {% for libr in library %}
+              {% if libr.id == lib.id_library.id %}
+                <option value="{{ libr.id }}" selected>{{ libr.name }}</option>
+              {% else %}
+                <option value="{{ libr.id }}">{{ libr.name }}</option>
+              {% endif %}
+            {% endfor %}
+        </select>
+      </div>
+
+    </fieldset>
+    <button type="submit" class="btn btn-success">Edit</button>
+  </form>
+
+{% endblock content %}
+

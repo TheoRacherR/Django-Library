@@ -1,0 +1,34 @@
+{% extends 'lib/index.html' %}
+
+{% block content %}
+
+    <h1>Add a new library</h1>
+  <form action="{% url 'add_library' %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input type="text" name="name" class="form-control" id="name">
+    </div>
+    <div class="mb-3">
+        <label for="address_name" class="form-label">Address name</label>
+        <input type="text" name="address_name" class="form-control" id="address_name">
+      </div>
+      <div class="mb-3">
+        <label for="address_city" class="form-label">Address City</label>
+        <input type="text" name="address_city" class="form-control" id="address_city">
+      </div>
+      <div class="mb-3">
+        <label for="address_country" class="form-label">Address Country</label>
+        <input type="text" name="address_country" class="form-control" id="address_country">
+      </div>
+      <div class="mb-3">
+        <label for="address_zip_code" class="form-label">Address Zip Code</label>
+        <input type="text" name="address_zip_code" class="form-control" id="address_zip_code">
+      </div>
+    </fieldset>
+    <button type="submit" class="btn btn-success">Create</button>
+  </form>
+
+{% endblock content %}
+

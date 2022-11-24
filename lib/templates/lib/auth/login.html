@@ -1,0 +1,37 @@
+{% extends 'lib/index.html' %}
+
+{% block content %}
+
+  {% comment %} <form action="{% url 'login_def' %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+      <div>
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" />
+      </div>
+      
+      <div>
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" />
+      </div>
+    </fieldset>
+    
+    <input type="submit" value="Login" />
+  </form> {% endcomment %}
+  <h1>Login</h1>
+  <form action="{% url 'login_def' %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+    <div class="mb-3">
+      <label for="exampleInputEmail1" class="form-label">Username</label>
+      <input type="text" name="username" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    </div>
+    <div class="mb-3">
+      <label for="exampleInputPassword1" class="form-label">Password</label>
+      <input type="password" name="password" class="form-control" id="exampleInputPassword1">
+    </div>
+    </fieldset>
+    <button type="submit" class="btn btn-primary">Login</button>
+  </form>
+
+{% endblock content %}
