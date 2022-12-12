@@ -1,0 +1,26 @@
+{% extends 'admin/index.html' %} 
+
+{% block title %} Add a lecture group {%
+endblock title %} {% block content %}
+
+<h1>Add a new lecture group</h1>
+<form action="{% url 'add_lecture_group_admin' %}" method="post">
+  {% csrf_token %}
+  <fieldset>
+    <div class="mb-3">
+      <label for="date" class="form-label">Date</label>
+      <input type="date" name="date" class="form-control" id="date" />
+    </div>
+    <div class="mb-3">
+      <label for="title" class="form-label">Title</label>
+      <input type="text" name="title" class="form-control" id="title" />
+    </div>
+    <div class="mb-3">
+      <label for="address" class="form-label">Address</label>
+      <input type="text" name="address" class="form-control" id="address" />
+    </div>
+  </fieldset>
+  <button type="submit" class="btn btn-success">Create</button>
+</form>
+
+{% endblock content %}

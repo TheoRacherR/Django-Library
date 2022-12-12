@@ -1,15 +1,11 @@
 from django.db import models
-
-class People(models.Model):
-    username = models.CharField(max_length=200)
-    email = models.EmailField(max_length=254, default=None)
-    password = models.CharField(max_length=200, default=None)
-    role = models.IntegerField(default=0)
-    creation_date = models.DateTimeField(auto_now_add=True)
-    modification_date = models.DateTimeField(auto_now=True)
-
+from django.contrib.auth.models import User, AbstractUser
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib import admin
 
 class Library(models.Model):
+    # id_user = models.ManyToManyField(User)
     name = models.CharField(max_length=200)
     address_name = models.CharField(max_length=500)
     address_city = models.CharField(max_length=500)
@@ -19,8 +15,9 @@ class Library(models.Model):
     modification_date = models.DateTimeField(auto_now=True)
 
 class Librarian(models.Model):
-    id_user = models.ForeignKey(People, on_delete=models.CASCADE)
-    id_library = models.ForeignKey(Library, on_delete=models.CASCADE)
+    id_user = models.ForeignKey(User, on_delete=models.CASCADE) #added
+    id_library = models.ForeignKey(Library, on_delete=models.CASCADE) #added
+
 
 class Collection(models.Model):
     def __str__(self):
@@ -46,24 +43,32 @@ class Books(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
 
-class InstanceBooks(models.Model):
-    id_user = models.ForeignKey(People, on_delete=models.RESTRICT)
+class InstanceBook(models.Model):
+    id_user = models.ForeignKey(User, on_delete=models.RESTRICT, null=True)
     id_books = models.ForeignKey(Books, on_delete=models.CASCADE)
     id_library = models.ForeignKey(Library, on_delete=models.RESTRICT)
-    borrowing_date = models.DateTimeField
-    max_date = models.DateTimeField
+    borrowing_date = models.DateField(null=True, blank=True)
+    max_date = models.DateField(null=True, blank=True)
     status = models.IntegerField(default=0)
 
-class LectureGroupe(models.Model):
-    date = models.DateField
+
+class LectureGroup(models.Model):
+    # id_user = models.ManyToManyField(User)
+    owner = models.ForeignKey(User, on_delete=models.RESTRICT)
     title = models.CharField(max_length=200)
     address = models.CharField(max_length=500)
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
 
 class Lecturer(models.Model):
-    id_user = models.ForeignKey(People, on_delete=models.CASCADE)
-    id_lg = models.ForeignKey(LectureGroupe, on_delete=models.CASCADE)
+    id_user = models.ForeignKey(User, on_delete=models.CASCADE) #added
+    id_lg = models.ForeignKey(LectureGroup, on_delete=models.CASCADE) #added
+
+class LectureGroupDetails(models.Model):
+    id_lg = models.ForeignKey(LectureGroup, on_delete=models.CASCADE)
+    date_start = models.DateTimeField()
+    date_end = models.DateTimeField()
+
 
 class Forum(models.Model):
     title = models.CharField(max_length=200)
@@ -71,8 +76,12 @@ class Forum(models.Model):
     modification_date = models.DateTimeField(auto_now=True)
 
 class Message(models.Model):
-    id_user = models.ForeignKey(People, on_delete=models.RESTRICT)
+    id_user = models.ForeignKey(User, on_delete=models.RESTRICT)
     id_forum = models.ForeignKey(Forum, on_delete=models.CASCADE)
     text = models.CharField(max_length=500)
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
+
+# class User(AbstractUser):
+    # id_lg = models.ManyToManyField(LectureGroup)
+    # id_library = models.ManyToManyField(Library)

@@ -1,0 +1,48 @@
+{% extends 'admin/index.html' %} 
+{% block title %} Add a book {% endblock title%} {% block content %}
+
+<h1>Add a new book</h1>
+<form action="{% url 'add_book_admin' %}" method="post">
+  {% csrf_token %}
+  <fieldset>
+    <div class="mb-3">
+      <label for="title" class="form-label">Title</label>
+      <input type="text" name="title" class="form-control" id="title" />
+    </div>
+    <div class="mb-3">
+      <label for="author" class="form-label">Author</label>
+      <input type="text" name="author" class="form-control" id="author" />
+    </div>
+    <div class="mb-3">
+      <label for="url_image" class="form-label">Url of the image</label>
+      <input type="text" name="url_image" class="form-control" id="url_image" />
+    </div>
+    <div class="mb-3">
+      <label for="publisher" class="form-label">Publisher</label>
+      <input type="text" name="publisher" class="form-control" id="publisher" />
+    </div>
+    <div class="mb-3">
+      <label for="collection" class="form-label">Collection</label>
+      <select id="collection" class="form-select" name="collection">
+        {% comment %}
+        <option selected="true" disabled="true">Select a collection</option>
+        {% endcomment %} {% for collec in context_collection %}
+        <option value="{{ collec.id }}">{{ collec }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="genre" class="form-label">Genre</label>
+      <select id="genre" class="form-select" name="genre">
+        {% comment %}
+        <option selected="true" disabled="true">Select a genre</option>
+        {% endcomment %} {% for gen in context_genre %}
+        <option value="{{ gen.id }}">{{ gen }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </fieldset>
+  <button type="submit" class="btn btn-success">Create</button>
+</form>
+
+{% endblock content %}

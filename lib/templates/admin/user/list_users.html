@@ -1,0 +1,30 @@
+{% extends 'admin/index.html' %} 
+{% block title %} List of the users {% endblock title %} {% block content %} {% load permission_tags %}
+<h1>List of users</h1>
+<ul class="list-group">
+  {% for u in context_users %}
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+    {{ u.id }} / {{ u.username }} / {{ u.date_joined|date:"d M Y h:i" }} {% if
+    user|has_role:'bookseller,admin' %}
+    <div>
+      <a
+        class="btn btn-warning"
+        href="{% url 'edit_user_admin' u.id %}"
+        role="button"
+      >
+        <i class="bi bi-pencil-square"></i>
+      </a>
+      <a
+        class="btn btn-danger"
+        href="{% url 'delete_user_admin' u.id %}"
+        role="button"
+      >
+        <i class="bi bi-trash3-fill"></i>
+      </a>
+    </div>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+
+{% endblock content %}

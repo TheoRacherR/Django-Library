@@ -1,5 +1,9 @@
 {% extends 'lib/index.html' %}
 
+{% block title %}
+  Sign in
+{% endblock title %}
+
 {% block content %}
   <h1>Signin</h1>
   <form action="{% url 'signin_def' %}" method="post">

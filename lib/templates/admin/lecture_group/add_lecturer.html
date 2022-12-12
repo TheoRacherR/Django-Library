@@ -1,0 +1,33 @@
+{% extends 'admin/index.html' %}
+
+{% block title %}
+  Add a lecturer
+{% endblock title %}
+
+{% block content %}
+
+    <h1>Add a lecturer of the lecture group {{ lg.title }}</h1>
+  <form action="{% url 'add_lecturer_admin' lg.pk %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+      <div class="mb-3">
+        <label for="user" class="form-label">Select the person</label>
+        <select id="user" class="form-select" name="user">
+            {% for u in usr %}
+              {% comment %} {% for lect in context_lecturer %}
+                {% if lect.id_user == usr and lect.id_lg == lg %}
+                  {% setVar 1 as count %}
+                {% endif %}
+              {% endfor %}
+              {% if count != 1 %} {% endcomment %}
+              <option value="{{ u.id }}">{{ u.username }}</option>
+              {% comment %} {% endif %} {% endcomment %}
+            {% endfor %}
+        </select>
+      </div>
+    </fieldset>
+    <button type="submit" class="btn btn-success">Create</button>
+  </form>
+
+{% endblock content %}
+

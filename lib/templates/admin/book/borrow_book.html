@@ -1,0 +1,29 @@
+{% extends 'admin/index.html' %} 
+{% block title %} Borrow the instance {%
+endblock title %} {% block content %}
+
+<h1>
+  Borrow the instance of the book "{{ instance.id_books.title }}" in the library
+  {{ instance.id_library. }}
+</h1>
+<form action="{% url 'borrow_book_admin' instance.pk %}" method="post">
+  {% csrf_token %}
+  <fieldset>
+    <div class="mb-3">
+      <label for="user" class="form-label">Select the borrower</label>
+      <select id="user" class="form-select" name="user">
+        {% for user in context_users %}
+        <option value="{{ user.id }}">{{ user.username }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="max_date" class="form-label">Max date of the borrow</label>
+      <input type="date" name="max_date" class="form-control" id="max_date" />
+    </div>
+  </fieldset>
+  <button type="submit" class="btn btn-success">Submit</button>
+</form>
+
+{% endblock content %}

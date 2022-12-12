@@ -1,0 +1,26 @@
+{% extends 'admin/index.html' %}
+
+{% block title %}
+  Add book group details
+{% endblock title %}
+
+{% block content %}
+
+    <h1>Add book group details {{ lg.title }}</h1>
+  <form action="{% url 'add_lecture_group_details' lg.pk %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+      <div class="mb-3">
+        <label for="date_start" class="form-label">From</label>
+        <input type="date" name="date_start" class="form-control" id="date_start">
+      </div>
+      <div class="mb-3">
+        <label for="date_end" class="form-label">To</label>
+        <input type="date" name="date_end" class="form-control" id="date_end">
+      </div>
+    </fieldset>
+    <button type="submit" class="btn btn-success">Submit</button>
+  </form>
+
+{% endblock content %}
+

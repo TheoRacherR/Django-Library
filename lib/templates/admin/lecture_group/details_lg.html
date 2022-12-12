@@ -1,0 +1,40 @@
+{% extends 'admin/index.html' %}
+
+{% block title %}
+  Details of "{{ lg.title }}"
+{% endblock title %}
+
+{% block content %}
+    {% load permission_tags %}
+
+    <h1>{{ lg.title }}</h1>
+
+    <p>ID: {{ lg.pk }}</p>
+    <p>Name: {{ lg.title }}</p>
+    <p>Genre: {{ lg.date|date:"d M Y" }}</p>
+    <p>Author: {{ lg.address }}</p>
+    <p>Created at: {{ lg.creation_date |date:"d M Y h:i" }}</p>
+    <p>Last update : {{ lg.modification_date |date:"d M Y h:i" }}</p>
+
+    {% if user|has_role:'bookseller,admin' %}
+        <a class="btn btn-success" href="{% url 'add_lecturer_admin' lg.pk %}" role="button">
+            Add a lecturer
+        </a>
+    {% endif %}
+
+    <h3>Lecturers</h3>
+
+    {% if lect %}
+        <ul class="list-group">
+            {% for l in lect %}
+                <li class="list-group-item d-flex justify-content-between align-items-center"> 
+                    {{ l.id_user.id}} / {{ l.id_user.username }}
+                    <a class="btn btn-danger" href="{% url 'delete_lecturer_admin' l.pk %}" role="button">
+                        <i class="bi bi-trash3-fill"></i> 
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+{% endblock content %}
