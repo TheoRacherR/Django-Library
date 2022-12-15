@@ -12,11 +12,29 @@
 <ul class="list-group">
   {% for book in context_books %}
   <li class="list-group-item d-flex justify-content-between align-items-center">
-    {{ book.pk }} / {{ book.title }}
+    <div>
+      <a href="{% url 'book_page_admin' book.pk %}">
+        {{ book.pk }} / {{ book.title }} 
+      </a>
+        {% if book.collection.name == "No collection" %}
+          <span style="color:#ad1409">
+            / Genre: {{ book.collection.name }}
+          </span>
+        {% else %}
+          / Genre: {{ book.collection.name }}
+        {% endif %}
+        {% if book.genre.name == "No genre" %}
+          <span style="color:#ad1409">
+            / Genre: {{ book.genre.name }}
+          </span>
+        {% else %}
+          / Genre: {{ book.genre.name }}
+        {% endif %}
+    </div>
     <div>
       <a
         class="btn btn-warning"
-        href="{% url 'book_page_admin' book.pk %}"
+        href="{% url 'edit_book_admin' book.pk %}"
         role="button"
       >
         <i class="bi bi-pencil-square"></i>
@@ -41,8 +59,7 @@
   </li>
 
   <ul class="list-group">
-    {% for instance in context_instances %} {% if instance.id_books == book and
-    instance.status == 0 %}
+    {% for instance in context_instances %} {% if instance.id_books == book and instance.status == 0 %}
     <li
       class="list-group-item d-flex justify-content-between align-items-center instance_admin"
     >

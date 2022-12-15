@@ -1,46 +1,52 @@
 {% extends 'admin/index.html' %} 
-{% block title %} Details of "{{ book.title }}"
-{% endblock title %} {% block content %} {% load permission_tags %}
+{% block title %} Details of "{{ book.title }}"{% endblock title %} 
 
-<p>ID: {{ book.pk }}</p>
-<p>Name: {{ book.title }}</p>
-<p>Collection: {{ book.collection.name }}</p>
-<p>Genre: {{ book.genre.name }}</p>
-<p>Author: {{ book.author }}</p>
-<p>Image: {{ book.url_image }}</p>
-<p>Publisher: {{ book.publisher }}</p>
-<p>Created at: {{ book.creation_date |date:"d M Y h:i" }}</p>
-<p>Last update : {{ book.modification_date |date:"d M Y h:i" }}</p>
+{% block content %}
+    {% load permission_tags %}
 
-{% if user|has_role:'bookseller,admin' %}
-<a
-  class="btn btn-success"
-  href="{% url 'add_instance_admin' book.pk %}"
-  role="button"
->
-  Add an instance
-</a>
-{% endif %}
-
-<h3>Instances</h3>
-
-{% if instances %}
-<ul class="list-group">
-  {% for instance in instances %}
-  <li class="list-group-item d-flex justify-content-between align-items-center">
-    Library: {{ instance.id_library.name }} {% if instance.status == 1 %} /
-    Borrowed by {{ instance.id_user.username }} / at {{ instance.borrowing_date
-    }} / max date : {{ instance.max_date }} {% else %} / Not borrowed {% endif
-    %}
+    <p>ID: {{ book.pk }}</p>
+    <p>Name: {{ book.title }}</p>
+    <p>Collection: {{ book.collection.name }}</p>
+    <p>Genre: {{ book.genre.name }}</p>
+    <p>Author: {{ book.author }}</p>
+    <p>Image: {{ book.url_image }}</p>
+    <p>Publisher: {{ book.publisher }}</p>
+    <p>Created at: {{ book.creation_date |date:"d M Y h:i" }}</p>
+    <p>Last update : {{ book.modification_date |date:"d M Y h:i" }}</p>
 
     <a
-      class="btn btn-danger"
-      href="{% url 'delete_instance_admin' instance.pk %}"
-      role="button"
+    class="btn btn-warning"
+    href="{% url 'edit_book_admin' book.pk %}"
+    role="button"
     >
-      <i class="bi bi-trash3-fill"></i>
+    Edit this book
     </a>
-  </li>
-  {% endfor %}
-</ul>
-{% endif %} {% endblock content %}
+
+    {% if user|has_role:'bookseller,admin' %}
+        <a class="btn btn-success" href="{% url 'add_instance_admin' book.pk %}" role="button">
+            Add an instance
+        </a>
+    {% endif %}
+
+    <h3>Instances</h3>
+
+    {% if instances %}
+        <ul class="list-group">
+            {% for instance in instances %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Library: {{ instance.id_library.name }} {% if instance.status == 1 %} /
+                    Borrowed by {{ instance.id_user.username }} / 
+                    at {{ instance.borrowing_date }} / 
+                    max date : {{ instance.max_date }} 
+                    {% else %} 
+                        / Not borrowed 
+                    {% endif %}
+
+                    <a class="btn btn-danger" href="{% url 'delete_instance_admin' instance.pk %}" role="button">
+                        <i class="bi bi-trash3-fill"></i>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %} 
+{% endblock content %}

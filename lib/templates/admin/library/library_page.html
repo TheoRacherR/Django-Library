@@ -1,0 +1,46 @@
+{% extends 'admin/index.html' %}
+
+{% block title %}
+  Details of "{{ lib.name }}"
+{% endblock title %}
+
+{% block content %}
+    {% load permission_tags %}
+
+    <h1>{{ lib.name }}</h1>
+
+    <p>Name: {{ lib.name }}</p>
+    <p>Address Name: {{ lib.address_name }}</p>
+    <p>City: {{ lib.address_city }}</p>
+    <p>Country: {{ lib.address_country }}</p>
+    <p>Zip code: {{ lib.address_zip_code }}</p>
+    <p>Created at: {{ lib.creation_date |date:"d M Y h:i" }}</p>
+    <p>Last update : {{ lib.modification_date |date:"d M Y h:i" }}</p>
+
+    <a class="btn btn-warning" href="{% url 'edit_library_admin' lib.pk %}" role="button">
+        Edit this library
+    </a>
+
+    <h3>Instances in this library</h3>
+
+    {% if context_instances %}
+        <ul class="list-group">
+            {% for ins in context_instances %}
+                <li class="list-group-item d-flex justify-content-between align-items-center"> 
+                    {{ ins.pk }} / {{ ins.id_books.title }} 
+                    {% if ins.status == 0 %}
+                        Not borrowed
+                    {% else %}
+                        Borrowed by {{ ins.id_user.username }} 
+                        the {{ inst.borrowing_date|date:"d M Y" }} 
+                        through {{ inst.max_date|date:"d M Y" }}
+                    {% endif %}
+                    <a class="btn btn-danger" href="{% url 'delete_instance_admin' ins.pk %}" role="button">
+                        <i class="bi bi-trash3-fill"></i> 
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+{% endblock content %}

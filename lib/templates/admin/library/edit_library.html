@@ -1,6 +1,7 @@
 {% extends 'admin/index.html' %} 
-{% block title %} Edit a library {% endblock
-title %} {% block content %}
+{% block title %} Edit a library {% endblock title %}
+
+{% block content %}
 
 <h1>Edit a library</h1>
 <form action="{% url 'edit_library_admin' library.pk %}" method="post">

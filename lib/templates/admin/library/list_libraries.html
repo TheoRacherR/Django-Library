@@ -11,16 +11,17 @@
   {% for lib in context_libraries %}
   <li class="list-group-item d-flex justify-content-between align-items-center">
     {% if user|has_role:'bookseller,admin' %}
-    <a href="{% url 'edit_library_admin' lib.pk %}" role="button">
+    <a href="{% url 'library_page_admin' lib.pk %}" role="button">
       {{ lib.pk }} / {{ lib.name }}
     </a>
-    <a
-      class="btn btn-danger"
-      href="{% url 'delete_library_admin' lib.pk %}"
-      role="button"
-    >
-      <i class="bi bi-trash"></i>
-    </a>
+    <div>
+      <a class="btn btn-warning" href="{% url 'edit_library_admin' lib.pk %}" role="button">
+        <i class="bi bi-pencil-square"></i>
+      </a>
+      <a class="btn btn-danger" href="{% url 'delete_library_admin' lib.pk %}" role="button">
+        <i class="bi bi-trash"></i>
+      </a>
+    </div>
     {% else %} {{ lib.pk }} / {{ lib.name }} {% endif %}
   </li>
   {% endfor %}

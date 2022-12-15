@@ -1,4 +1,4 @@
-{% extends 'lib/index.html' %} 
+{% extends 'admin/index.html' %} 
 {% block title %} Edit user "{{ user.username }}"
 {% endblock title %} {% block content %}
 <h1>Edit a {{ user.username }}</h1>
@@ -28,12 +28,13 @@
     <div class="mb-3">
       <label for="library" class="form-label">Library rattached</label>
       <select id="library" class="form-select" name="library">
-        {% for libr in context_libraries %} {% if libr.id == lib.id_library.id
-        %}
-        <option value="{{ libr.id }}" selected>{{ libr.name }}</option>
-        {% else %}
-        <option value="{{ libr.id }}">{{ libr.name }}</option>
-        {% endif %} {% endfor %}
+        {% for libr in context_libraries %} 
+          {% if libr == lib.id_library %}
+            <option value="{{ libr.id }}" selected>{{ libr.name }}</option>
+          {% else %}
+            <option value="{{ libr.id }}">{{ libr.name }}</option>
+          {% endif %}
+        {% endfor %}
       </select>
     </div>
   </fieldset>

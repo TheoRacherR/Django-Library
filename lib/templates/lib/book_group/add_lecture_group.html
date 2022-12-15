@@ -1,9 +1,9 @@
 {% extends 'lib/index.html' %} 
-{% block title %} Add a lecture group {% endblock title %} 
+{% block title %} Add a book group {% endblock title %} 
 
 {% block content %}
 
-  <h1>Add a new lecture group</h1>
+  <h1>Add a new book group</h1>
   <form action="{% url 'add_lecture_group' %}" method="post">
     {% csrf_token %}
     <fieldset>

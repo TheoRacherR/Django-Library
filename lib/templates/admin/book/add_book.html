@@ -24,9 +24,7 @@
     <div class="mb-3">
       <label for="collection" class="form-label">Collection</label>
       <select id="collection" class="form-select" name="collection">
-        {% comment %}
-        <option selected="true" disabled="true">Select a collection</option>
-        {% endcomment %} {% for collec in context_collection %}
+        {% for collec in context_collection %}
         <option value="{{ collec.id }}">{{ collec }}</option>
         {% endfor %}
       </select>
@@ -34,9 +32,7 @@
     <div class="mb-3">
       <label for="genre" class="form-label">Genre</label>
       <select id="genre" class="form-select" name="genre">
-        {% comment %}
-        <option selected="true" disabled="true">Select a genre</option>
-        {% endcomment %} {% for gen in context_genre %}
+        {% for gen in context_genre %}
         <option value="{{ gen.id }}">{{ gen }}</option>
         {% endfor %}
       </select>

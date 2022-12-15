@@ -1,0 +1,18 @@
+{% extends 'lib/index.html' %} 
+{% block title %} Add a new forum subject {% endblock %}
+
+{% block content %}
+
+  <h1>Add a new forum subject</h1>
+  <form action="{% url 'add_forum' %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+      <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" name="title" class="form-control" id="title" />
+      </div>
+    </fieldset>
+    <button type="submit" class="btn btn-success">Create</button>
+  </form>
+
+{% endblock content %}

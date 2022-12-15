@@ -5,12 +5,11 @@ from django.dispatch import receiver
 from django.contrib import admin
 
 class Library(models.Model):
-    # id_user = models.ManyToManyField(User)
     name = models.CharField(max_length=200)
-    address_name = models.CharField(max_length=500)
-    address_city = models.CharField(max_length=500)
-    address_country = models.CharField(max_length=500)
-    address_zip_code = models.CharField(max_length=500)
+    address_name = models.TextField(max_length=500)
+    address_city = models.TextField(max_length=500)
+    address_country = models.TextField(max_length=500)
+    address_zip_code = models.TextField(max_length=500)
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
 
@@ -46,17 +45,16 @@ class Books(models.Model):
 class InstanceBook(models.Model):
     id_user = models.ForeignKey(User, on_delete=models.RESTRICT, null=True)
     id_books = models.ForeignKey(Books, on_delete=models.CASCADE)
-    id_library = models.ForeignKey(Library, on_delete=models.RESTRICT)
+    id_library = models.ForeignKey(Library, on_delete=models.CASCADE)
     borrowing_date = models.DateField(null=True, blank=True)
     max_date = models.DateField(null=True, blank=True)
     status = models.IntegerField(default=0)
 
 
 class LectureGroup(models.Model):
-    # id_user = models.ManyToManyField(User)
-    owner = models.ForeignKey(User, on_delete=models.RESTRICT)
+    owner = models.ForeignKey(User, on_delete=models.RESTRICT, null=True)
     title = models.CharField(max_length=200)
-    address = models.CharField(max_length=500)
+    address = models.CharField(max_length=200)
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
 
@@ -76,12 +74,13 @@ class Forum(models.Model):
     modification_date = models.DateTimeField(auto_now=True)
 
 class Message(models.Model):
-    id_user = models.ForeignKey(User, on_delete=models.RESTRICT)
+    id_user = models.ForeignKey(User, on_delete=models.RESTRICT, null=True)
     id_forum = models.ForeignKey(Forum, on_delete=models.CASCADE)
-    text = models.CharField(max_length=500)
+    text = models.TextField(max_length=500)
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
 
-# class User(AbstractUser):
-    # id_lg = models.ManyToManyField(LectureGroup)
-    # id_library = models.ManyToManyField(Library)
+class UserData(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=20)
+

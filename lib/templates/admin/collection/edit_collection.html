@@ -1,0 +1,24 @@
+{% extends 'admin/index.html' %} 
+{% block title %} Edit a collection {% endblock title %}
+
+{% block content %}
+
+<h1>Edit a collection</h1>
+<form action="{% url 'edit_collection_admin' coll.pk %}" method="post">
+  {% csrf_token %}
+  <fieldset>
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input
+        type="text"
+        name="name"
+        class="form-control"
+        id="name"
+        value="{{ coll.name }}"
+      />
+    </div>
+  </fieldset>
+  <button type="submit" class="btn btn-success">Edit</button>
+</form>
+
+{% endblock content %}

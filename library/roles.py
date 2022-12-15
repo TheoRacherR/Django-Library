@@ -9,7 +9,7 @@ class Customer(AbstractUserRole):
 
 class Bookseller(AbstractUserRole):
     available_permissions = {
-        'customer': True,
+        'customer': False,
         'bookseller': True,
         'admin': False,
 
@@ -17,7 +17,7 @@ class Bookseller(AbstractUserRole):
 
 class Admin(AbstractUserRole):
     available_permissions = {
-        'customer': True,
-        'bookseller': True,
+        'customer': False,
+        'bookseller': False,
         'admin': True,
     }

@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.template import Context, RequestContext
 from django.db import IntegrityError
 
-from .models import Books, Genre, Collection, InstanceBook, Library, Librarian, LectureGroup, Lecturer, LectureGroupDetails
+from .models import UserData, Message, Books, Genre, Collection, InstanceBook, Library, Librarian, LectureGroup, Lecturer, LectureGroupDetails, Forum
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
@@ -12,21 +12,40 @@ from django.contrib.auth.models import User
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from rolepermissions.roles import assign_role
+from rolepermissions.roles import assign_role, remove_role
 
 import datetime
+
+
 
 
 #site
 def index(request):
     return render(request, "lib/index.html")
 
+def not_founded(request):
+    return render(request, 'lib/404.html')
+
 #admin
 def admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
     return render(request, 'admin/index.html')
 
-def not_founded(request):
-    return redirect('/lib/404')
+
+# #Checks
+# def check_if_admin(request):
+#     if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+#         messages.error(request, '403, Access denied')
+#         return render(request, "lib/index.html")
+#         # return redirect('index')
+
+# def check_if_admin_or_bookseller(request):
+#     if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+#         messages.error(request, '403, Access denied')
+#         return redirect('index')
+
 
 
 ##Auth
@@ -63,6 +82,8 @@ def signin_def(request):
             
             user_admin = User.objects.create_user(
                 username=request.POST['username'],
+                first_name=request.POST['firstname'],
+                last_name=request.POST['lastname'],
                 email=request.POST['email'],
                 password=request.POST['password']
             )
@@ -93,6 +114,32 @@ def signin_def(request):
 def logout_def(request):
     logout(request)
     return redirect('/lib/')
+
+#admin
+def set_role(request,id,role):
+    try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+
+        user = User.objects.get(pk=id)
+        assign_role(user, role)
+        if role != 'admin':
+            remove_role(user, 'admin')
+        if role != 'customer':
+            remove_role(user, 'customer')
+        if role != 'bookseller':
+            remove_role(user, 'bookseller')
+        usr = UserData.objects.get(user=user)
+    except UserData.DoesNotExist:
+        usr = UserData()
+        usr.user = user
+
+    usr.role = role
+    usr.save()
+    messages.success(request, 'Update user {user.username} with {role} role')
+    return redirect('list_users_admin')
+
 
 
 ##Book
@@ -153,6 +200,10 @@ def list_books(request, idL, idC, idG):
 #admin
 def details_book_admin(request, id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+
         book = Books.objects.get(pk=id)
         instances = InstanceBook.objects.filter(id_books=id)
 
@@ -165,6 +216,10 @@ def details_book_admin(request, id):
     })
 
 def add_book_admin(request):
+
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
 
     if request.method == 'POST':
     
@@ -182,13 +237,52 @@ def add_book_admin(request):
 
         messages.success(request, 'Books added')
 
-        return redirect('list_books_admin')
+        return redirect('book_page_admin', id=data.id)
 
     else:
-        return render(request, 'admin/book/add_book_admin.html')
+        return render(request, 'admin/book/add_book.html')
+
+def edit_book_admin(request,id):
+    try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+        book = Books.objects.get(pk=id)
+
+        if request.method == 'POST':
+        
+            book.title = request.POST["title"]
+            book.author = request.POST["author"]
+            book.url_image = request.POST["url_image"]
+            book.publisher = request.POST["publisher"]
+            collec = Collection.objects.get(pk=request.POST["collection"])
+            gen = Genre.objects.get(pk=request.POST["genre"])
+            book.collection = collec
+            book.genre = gen
+
+            book.save()
+
+            messages.success(request, 'Books edited')
+
+            return redirect('book_page_admin', id=id)
+        else :
+            return render(request, "admin/book/edit_book.html", { 'book': book })
+
+    except Books.DoesNotExist:
+        messages.error(request, 'error')
+        return redirect('list_books_admin')
+
+def list_books_admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    return render(request, 'admin/book/list_books.html')
 
 def delete_book_admin(request,id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         book = Books.objects.get(pk=id)
         book.delete()
         messages.success(request, 'book deleted')
@@ -198,8 +292,122 @@ def delete_book_admin(request,id):
 
     return redirect('list_books_admin')
 
-def list_books_admin(request):
-    return render(request, 'admin/book/list_books.html')
+
+
+##Collection
+#admin
+def list_collection_admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    return render(request, 'admin/collection/list_collection.html')
+
+def add_collection_admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    if request.method == 'POST':
+        coll = Collection()
+        coll.name = request.POST['name']
+
+        coll.save()
+        return redirect('list_collection_admin')
+
+    else:
+        return render(request, 'admin/collection/add_collection.html')
+
+def edit_collection_admin(request,id):
+    try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+        coll = Collection.objects.get(id=id)
+        if request.method == 'POST':
+            coll.name = request.POST['name']
+            coll.save()
+
+            messages.success(request, 'Collection edited')
+            return redirect('list_collection_admin')
+        else:
+            return render(request, 'admin/collection/edit_collection.html', { 'coll': coll })
+
+    except Collection.DoesNotExist:
+        messages.error(request, "Error")
+        return redirect('list_collection_admin')
+
+def delete_collection_admin(request,id):
+    try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+        coll = Collection.objects.get(id=id)
+        Books.objects.filter(collection=coll).update(collection = Collection.objects.get(name='No collection'))
+        coll.delete()
+        messages.success(request, 'Collection deleted')
+
+    except Collection.DoesNotExist:
+        messages.error(request, "Error")
+    
+    return redirect('list_collection_admin')
+
+
+
+##Genre
+#admin
+def list_genre_admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    return render(request, 'admin/genre/list_genre.html')
+
+def add_genre_admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    if request.method == 'POST':
+        gen = Genre()
+        gen.name = request.POST['name']
+
+        gen.save()
+        return redirect('list_genre_admin')
+
+    else:
+        return render(request, 'admin/genre/add_genre.html')
+
+def edit_genre_admin(request,id):
+    try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+        gen = Genre.objects.get(id=id)
+        if request.method == 'POST':
+            gen.name = request.POST['name']
+            gen.save()
+
+            messages.success(request, 'Genre edited')
+            return redirect('list_genre_admin')
+        else:
+            return render(request, 'admin/genre/edit_genre.html', { 'gen':gen })
+
+    except Genre.DoesNotExist:
+        messages.error(request, "Error")
+        return redirect('list_genre_admin')
+
+def delete_genre_admin(request,id):
+    try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+        gen = Genre.objects.get(id=id)
+        Books.objects.filter(genre=gen).update(genre = Genre.objects.get(name='No genre'))
+        gen.delete()
+        messages.success(request, 'Genre deleted')
+
+    except Genre.DoesNotExist:
+        messages.error(request, "Error")
+    
+    return redirect('list_genre_admin')
+
 
 
 ##Instance
@@ -210,6 +418,9 @@ def list_borrows(request):
 
 #admin
 def add_instance_admin(request,id):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
     book = Books.objects.get(pk=id)
 
     context_list = {
@@ -240,10 +451,13 @@ def add_instance_admin(request,id):
         
 
     else:
-        return render(request, 'admin/book/add_instance_admin.html', context_list)
+        return render(request, 'admin/book/add_instance.html', context_list)
 
 def delete_instance_admin(request,id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         instance = InstanceBook.objects.get(pk=id)
         instance.delete()
         messages.success(request, 'instance deleted')
@@ -255,6 +469,9 @@ def delete_instance_admin(request,id):
 
 def borrow_book_admin(request,id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         instance = InstanceBook.objects.get(pk=id)
 
         if request.method == 'POST':
@@ -271,7 +488,7 @@ def borrow_book_admin(request,id):
             return redirect('list_books_admin')
 
         else :
-            return render(request, 'admin/book/borrow_book_admin.html', { 'instance': instance})
+            return render(request, 'admin/book/borrow_book.html', { 'instance': instance})
 
     except InstanceBook.DoesNotExist:
         messages.error(request, 'error')
@@ -279,6 +496,9 @@ def borrow_book_admin(request,id):
 
 def cancel_borrow_admin(request,id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         instance = InstanceBook.objects.get(pk=id)
         instance.id_user = None
         instance.borrowing_date = None
@@ -294,15 +514,20 @@ def cancel_borrow_admin(request,id):
         return redirect('list_books_admin')
 
 def list_borrows_admin(request):
-    # instance = InstanceBook.objects.get(pk=2)
-    # messages.success(request, instance.max_date)
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
 
     return render(request, 'admin/book/list_borrows.html')
+
 
 
 ##Library
 #admin
 def add_library_admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
 
     if request.method == 'POST':
     
@@ -322,13 +547,19 @@ def add_library_admin(request):
         
 
     else:
-        return render(request, 'admin/library/add_library_admin.html')
+        return render(request, 'admin/library/add_library.html')
 
 def list_libraries_admin(request):
-    return render(request, "admin/library/list_libraries_admin.html")
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    return render(request, "admin/library/list_libraries.html")
 
 def edit_library_admin(request, id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         library = Library.objects.get(pk=id)
 
         if request.method == 'POST':
@@ -344,7 +575,7 @@ def edit_library_admin(request, id):
             return redirect('list_libraries_admin')
             
         else :
-            return render(request, "admin/library/edit_library_admin.html", { 'library': library })
+            return render(request, "admin/library/edit_library.html", { 'library': library })
 
     except Library.DoesNotExist:
         messages.error(request, 'error')
@@ -352,23 +583,63 @@ def edit_library_admin(request, id):
 
 def delete_library_admin(request, id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         lib = Library.objects.get(pk=id)
         lib.delete()
         messages.success(request, 'library deleted')
     except Library.DoesNotExist:
         messages.error(request, 'error')
     
-    # return render(request, 'admin/library/list_libraries_admin.html')
+    # return render(request, 'admin/library/list_libraries.html')
     return redirect('list_libraries_admin')
+
+def library_page_admin(request, id):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    lib = Library.objects.get(pk=id)
+    return render(request, "admin/library/library_page.html", { 'lib': lib })
+
 
 
 ##User
 #admin
-def list_users_admin(request):  
-    return render(request, "admin/user/list_users_admin.html")
+def page_user(request, id):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    user = User.objects.get(pk=id)
+    user_data = UserData.objects.get(user=user)
+    librarian = Librarian.objects.filter(id_user=user)
+    instance = InstanceBook.objects.filter(id_user=user)
+    lecture_group = LectureGroup.objects.filter(owner=user)
+    lecturer = Lecturer.objects.filter(id_user=user)
+    message = Message.objects.filter(id_user=user)
+
+    context = {
+        'user': user,
+        'user_data': user_data,
+        'librarian': librarian,
+        'instance': instance,
+        'lecture_group': lecture_group,
+        'lecturer': lecturer,
+        'message': message,
+    }
+    return render(request, 'admin/user/page_user.html', context)
+
+def list_users_admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    return render(request, "admin/user/list_users.html")
 
 def edit_user_admin(request, id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         user = User.objects.get(id=id)
         lib = Librarian.objects.get(id_user=id)
   
@@ -396,7 +667,7 @@ def edit_user_admin(request, id):
                         'lib': lib
                 }
 
-            return render(request, "admin/user/edit_user_admin.html", context)
+            return render(request, "admin/user/edit_user.html", context)
 
     except Librarian.DoesNotExist:
         lib=None
@@ -425,10 +696,13 @@ def edit_user_admin(request, id):
                         'lib': lib
                 }
 
-            return render(request, "admin/user/edit_user_admin.html", context)
+            return render(request, "admin/user/edit_user.html", context)
 
 def delete_user_admin(request,id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         user = User.objects.get(pk=id)
         user.delete()
         messages.success(request, 'user deleted')
@@ -436,12 +710,13 @@ def delete_user_admin(request,id):
     except User.DoesNotExist:
         messages.error(request, 'error')
         
-    return render('list_users_admin')
+    return redirect('list_users_admin')
 
 
-##Lecture Group
+
+##Book Group
 #site
-def details_lg(request,id):
+def lg_page(request,id):
     try:
         lecture_group = LectureGroup.objects.get(pk=id)
         lecturer = Lecturer.objects.filter(id_lg=lecture_group)
@@ -450,78 +725,79 @@ def details_lg(request,id):
     except LectureGroup.DoesNotExist:
         return render('list_lecture_groups')
 
-    return render(request, "lib/lecture_group/details_lecture_group.html", {
+    return render(request, "lib/book_group/details_lecture_group.html", {
         "lecture_group": lecture_group,
         "lecturer": lecturer,
         "lg_details": lg_details,
     })
-    
-def list_lecture_group(request):
-    return render(request, 'lib/lecture_group/list_lecture_group.html')
 
 def list_lecture_groups(request):
-    return render(request, "lib/lecture_group/list_lecture_groups.html")
-
-def delete_lecturer(request,id):
-    try:
-        lect = Lecturer.objects.get(pk=id)
-        lect.delete()
-        messages.success(request, 'lecturer deleted')
-
-    except Lecturer.DoesNotExist:
-        messages.error(request, 'error')
-        
-    return redirect('list_lecture_group')
+    return render(request, "lib/book_group/list_lecture_groups.html")
 
 def add_lecture_group(request):
     
     if request.method == 'POST':
     
         lecture_group = LectureGroup()
-
-        # lecture_group.date = request.POST["date"]
+        
+        lecture_group.owner = User.objects.get(pk=request.user.id)
         lecture_group.title = request.POST["title"]
         lecture_group.address = request.POST["address"]
 
-        # lg_details = LectureGroupDetails()
-
-        # lg_details.id_lg = LectureGroup.objects.get(pk=lecture_group)
-
         lecture_group.save()
 
-        messages.success(request, 'Lecture groupe added')
-        return redirect('details_lg', id=lecture_group.pk)
+        messages.success(request, 'Book group added')
+        return redirect('lg_page', id=lecture_group.pk)
 
     else:
-        return render(request, 'lib/lecture_group/add_lecture_group_admin.html')
+        return render(request, 'lib/book_group/add_lecture_group.html')
+
+def delete_lecture_group(request,id):
+    try:
+        lecture_group = LectureGroup.objects.get(pk=id)
+        lecture_group.delete()
+        messages.success(request, 'book group deleted')
+
+    except LectureGroup.DoesNotExist:
+        messages.error(request, 'error')
+        
+    return redirect('list_lecture_groups')
 
 def add_lecture_group_details(request, id):
     try:
         lg = LectureGroup.objects.get(pk=id)
+        lg_details = LectureGroupDetails()
 
-        if request.method == 'POST':
+        if request.POST["date_start"] > request.POST["date_end"]:
+            messages.error(request, 'Date start > date end')
+            return redirect('lg_page', id=id)
 
-            lg_details = LectureGroupDetails()
+        lg_details.date_start = request.POST["date_start"]
+        lg_details.date_end = request.POST["date_end"]
+        lg_details.id_lg = lg
 
-            if request.POST["date_start"] > request.POST["date_end"]:
-                messages.error(request, 'Date satrt > date end')
-                return redirect('details_lg', id=id)
+        lg_details.save()
 
-            lg_details.date_start = request.POST["date_start"]
-            lg_details.date_end = request.POST["date_end"]
-            lg_details.id_lg = lg
-
-            lg_details.save()
-
-            messages.success(request, 'Lecture groupe details added')
-            return redirect('details_lg', id=id)
-
-        else:
-            return render(request, 'lib/lecture_group/add_lecture_details.html', { 'lg':lg })
+        messages.success(request, 'Book group details added')
     
     except LectureGroup.DoesNotExist:
         messages.error(request, "Error")
         return redirect('list_lecture_group')
+
+    return redirect('lg_page', id=id)
+    
+def delete_lecture_group_details(request, id):
+    try:
+        lg = LectureGroupDetails.objects.get(pk=id)
+        idLG = lg.id_lg.id
+
+        lg.delete()
+        messages.success(request, "Session deleted")
+        
+    except LectureGroupDetails.DoesNotExist:
+        messages.error(request, "Error")
+    
+    return redirect('lg_page', id=idLG)
 
 def add_lecturer(request, id):
     try :
@@ -532,68 +808,90 @@ def add_lecturer(request, id):
         if request.method == 'POST':
             
             lect = Lecturer()
-            lect.id_user = User.objects.get(pk=request.user.id)
+            lect.id_user = User.objects.get(pk=request.POST['user'])
             lect.id_lg = lg
             lect.save()
 
             #TODO envoyer un mail
 
             messages.success(request, 'Lecturer added')
-            return redirect('details_lg', id=id)
 
-    except LectureGroup.DoesNotExist or User.DoesNotExist:
+    except User.DoesNotExist:
         messages.error(request, "Error")
-        return redirect('list_lecture_group')
+    
+    return redirect('lg_page', id=id)
+
+def delete_lecturer(request,id):
+    try:
+        lect = Lecturer.objects.get(pk=id)
+        idLG = lect.id_lg.id
+        lect.delete()
+        messages.success(request, 'lecturer deleted')
+
+    except Lecturer.DoesNotExist:
+        messages.error(request, 'error')
+        
+    return redirect('lg_page', id=idLG)
 
 #admin
 def list_lecture_group_admin(request):
-    return render(request, 'admin/lecture_group/list_lecture_group.html')
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    return render(request, 'admin/book_group/list_lecture_group.html')
 
 def add_lecture_group_admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
     
     if request.method == 'POST':
     
         lecture_group = LectureGroup()
 
-        lecture_group.date = request.POST["date"]
         lecture_group.title = request.POST["title"]
         lecture_group.address = request.POST["address"]
 
         lecture_group.save()
 
-        messages.success(request, 'Lecture groupe added')
+        messages.success(request, 'book groupe added')
         return redirect('list_lecture_group_admin')
 
     else:
-        return render(request, 'admin/lecture_group/add_lecture_group_admin.html')
+        return render(request, 'admin/book_group/add_lecture_group.html')
 
 def edit_lecture_group_admin(request, id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         lecture_group = LectureGroup.objects.get(pk=id)
   
         if request.method == 'POST':
             
-            lecture_group.date = request.POST["date"]
             lecture_group.title = request.POST["title"]
             lecture_group.address = request.POST["address"]
             lecture_group.save()
-            messages.success(request, "lecture group modified")
+            messages.success(request, "book group modified")
             return redirect('list_lecture_group_admin')
 
         else :
             context = {
                         'lg': lecture_group
                 }
-            return render(request, "admin/lecture_group/edit_lecture_group_admin.html", context)
+            return render(request, "admin/book_group/edit_lecture_group.html", context)
 
     except LectureGroup.DoesNotExist:
         return redirect('list_lecture_group_admin')
 
 def delete_lecture_group_admin(request,id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         lecture_group = LectureGroup.objects.get(pk=id)
         lecture_group.delete()
-        messages.success(request, 'lecture group deleted')
+        messages.success(request, 'book group deleted')
 
     except User.DoesNotExist:
         messages.error(request, 'error')
@@ -602,6 +900,9 @@ def delete_lecture_group_admin(request,id):
 
 def add_lecturer_admin(request, id):
     try :
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         lg = LectureGroup.objects.get(pk=id)
         lect = Lecturer.objects.filter(id_lg=lg)
         usr = User.objects.exclude(id__in=list(lect.values_list("id", flat=True)))
@@ -614,10 +915,10 @@ def add_lecturer_admin(request, id):
             lect.save()
 
             messages.success(request, 'Lecturer added')
-            return redirect('list_lecture_group_admin')
+            return redirect('details_lg_admin', id=id)
 
         else:
-            return render(request, 'admin/lecture_group/add_lecturer.html', { 
+            return render(request, 'admin/book_group/add_lecturer.html', { 
                 'lg':lg,
                 'lect': lect,
                 'usr': usr })
@@ -628,30 +929,40 @@ def add_lecturer_admin(request, id):
 
 def delete_lecturer_admin(request,id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         lect = Lecturer.objects.get(pk=id)
+        idLG = lect.id_lg.id
         lect.delete()
         messages.success(request, 'lecturer deleted')
 
     except Lecturer.DoesNotExist:
         messages.error(request, 'error')
         
-    return redirect('list_lecture_group_admin')
+    return redirect('details_lg_admin', id=idLG)
 
 def details_lg_admin(request, id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         lg = LectureGroup.objects.get(pk=id)
         lect = Lecturer.objects.filter(id_lg=id)
 
     except LectureGroup.DoesNotExist or Lecturer.DoesNotExist:
         return redirect('list_lecture_group_admin')
 
-    return render(request, "admin/lecture_group/details_lg.html", {
+    return render(request, "admin/book_group/lg_page.html", {
         "lg": lg,
         "lect": lect
     })
 
 def add_lecture_group_details_admin(request, id):
     try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
         lg = LectureGroup.objects.get(pk=id)
 
         if request.method == 'POST':
@@ -660,7 +971,7 @@ def add_lecture_group_details_admin(request, id):
 
             if request.POST["date_start"] > request.POST["date_end"]:
                 messages.error(request, 'Date satrt > date end')
-                return redirect('details_lg', id=id)
+                return redirect('lg_page', id=id)
 
             lg_details.date_start = request.POST["date_start"]
             lg_details.date_end = request.POST["date_end"]
@@ -668,14 +979,242 @@ def add_lecture_group_details_admin(request, id):
 
             lg_details.save()
 
-            messages.success(request, 'Lecture groupe details added')
-            return redirect('details_lg', id=id)
+            messages.success(request, 'book groupe details added')
+            return redirect('lg_page', id=id)
 
         else:
-            return render(request, 'admin/lecture_group/add_lecture_details.html', { 'lg':lg })
+            return render(request, 'admin/book_group/add_lecture_details.html', { 'lg':lg })
     
     except LectureGroup.DoesNotExist:
         messages.error(request, "Error")
         return redirect('list_lecture_group_admin')
+
+
+
+##Forum
+#site
+def list_forum(request):
+    return render(request, 'lib/forum/list_forum.html')
+
+def add_forum(request):
+    forum = Forum()
+
+    if request.method == 'POST':
+        forum.title = request.POST['title']
+        forum.save()
+        messages.success(request, 'forum added')
+        return redirect('list_forum')
+    
+    else:
+        return render(request, 'lib/forum/add_forum.html')
+
+def delete_forum(request,id):
+    try:
+        forum = Forum.objects.get(pk=id)
+        forum.delete()
+
+        messages.success(request, 'Forum deleted')
+        return redirect('list_forum')
+
+    except Forum.DoesNotExist:
+        messages.error(request, 'error')
+        return redirect('list_forum')
+
+def forum_page(request,id):
+    try:
+        forum = Forum.objects.get(pk=id)
+        messages = Message.objects.filter(id_forum=forum).order_by('-creation_date')
+
+        return render(request, 'lib/forum/forum_page.html', {
+            'forum': forum,
+            'messages': messages,
+        })
+
+    except Forum.DoesNotExist:
+        messages.error(request, 'error')
+        return redirect('list_forum')
+
+def list_own_message(request):
+    try:
+        message = Message.objects.filter(id_user=request.user)
+        return render(request, 'lib/forum/list_message.html', { 'message': message })
+
+    except Message.DoesNotExist:
+        messages.error(request, "Error")
+        return redirect('admin')
+        
+def add_message(request,id):
+    message = Message()
+
+    if request.method == 'POST':
+        message.text = request.POST['text']
+        message.id_forum = Forum.objects.get(pk=id)
+        message.id_user = User.objects.get(id=request.user.id)
+        message.save()
+        messages.success(request, 'message added')
+        return redirect('forum_page', id=id)
+    
+    else:
+        return redirect('forum_page', id=id)
+
+def edit_message(request,id):
+    try:
+        if request.method == 'POST':
+            message = Message.objects.get(id=id)
+            message.text = request.POST['text']
+            message.save()
+            messages.success(request, 'message edited')
+            return redirect('forum_page', id=id)
+        else:
+            return render(request, "lib/forum/message/edit_message.html")
+
+    except Message.DoesNotExist:
+        messages.error(request, 'error')
+        return redirect('list_forum')
+
+def delete_message(request,id):
+    try:
+        if request.user != Message.objects.get(id=id).id_user:
+            messages.error(request, '403, You are not the owner of this message')
+            return redirect('index')
+        message = Message.objects.get(id=id)
+        message.delete()
+        messages.success(request, 'message deleted')
+        return redirect('list_message')
+
+    except Message.DoesNotExist:
+        messages.error(request, 'error')
+
+##admin
+def list_forum_admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    return render(request, 'admin/forum/list_forum.html')
+
+def add_forum_admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    forum = Forum()
+    if request.method == 'POST':
+        forum.title = request.POST['title']
+        forum.save()
+        messages.success(request, 'Forum added')
+        return redirect('list_forum_admin')
+    
+    else:
+        return render(request, 'lib/forum/add_forum.html')
+
+def edit_forum_admin(request,id):
+    try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+
+        forum = Forum.objects.get(id=id)
+        if request.method == 'POST':
+            forum.title = request.POST['title']
+            forum.save()
+            messages.success(request, 'Forum edited')
+            return redirect('list_forum_admin')
+        
+        else:
+            return render(request, 'admin/forum/edit_forum.html')
+    except Forum.DoesNotExist:
+        messages.error(request, "error")
+        return render('list_forum_admin')   
+
+def delete_forum_admin(request,id):
+    try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+        forum = Forum.objects.get(pk=id)
+        forum.delete()
+
+        messages.success(request, 'Forum deleted')
+        return redirect('list_forum_admin')
+
+    except Forum.DoesNotExist:
+        messages.error(request, 'error')
+        return redirect('list_forum_admin')
+
+def forum_page_admin(request,id):
+    try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+        forum = Forum.objects.get(pk=id)
+        messages = Message.objects.filter(id_forum=forum).order_by('-creation_date')
+
+        return render(request, 'admin/forum/forum_page.html', {
+            'forum': forum,
+            'messages': messages,
+        })
+
+    except Forum.DoesNotExist:
+        messages.error(request, 'error')
+        return redirect('list_forum_admin')
+
+# def add_message_admin(request,id):
+#     try:
+#         if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+#             messages.error(request, '403, Access denied')
+#             return redirect('index')
+#         message = Message()
+#         message.id_user = User.objects.get(id=request.POST['user'])
+#         message.id_forum = Forum.objects.get(id=id)
+#         message.text = request.POST['text']
+#         message.save()
+#         messages.success(request, "Message edited")
+#         return render("list_message_admin")
+
+#     except Message.DoesNotExist:
+#         messages.error(request, "Error")
+#         return render("list_message_admin")
+
+def edit_message_admin(request,id):
+    try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+        if request.method == 'POST':
+            message = Message.objects.get(pk=id)
+            message.id_user = User.objects.get(id=request.POST['user'])
+            message.id_forum = Forum.objects.get(id=request.POST['forum'])
+            message.text = request.POST['text']
+            message.save()
+            messages.success(request, "Message edited")
+            return redirect("list_message_admin")
+        else:
+            return render(request, "admin/forum/edit_message.html")
+
+    except Message.DoesNotExist:
+        messages.error(request, "Error")
+        return render("list_message_admin")
+
+def delete_message_admin(request,id):
+    try:
+        if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+            messages.error(request, '403, Access denied')
+            return redirect('index')
+        message = Message.objects.get(pk=id)
+        message.delete()
+        messages.success(request, "Message deleted")
+        return render("list_message_admin")
+
+    except Message.DoesNotExist:
+        messages.error(request, "Error")
+        return render("list_message_admin")
+
+def list_message_admin(request):
+    if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
+        messages.error(request, '403, Access denied')
+        return redirect('index')
+    return render(request, "admin/forum/list_message.html")
+
+
+
 
 

@@ -78,7 +78,7 @@
                 {% endfor %}
 
                 <h3>
-                    All of your next lecture groups :
+                    All of your next Book groups :
                 </h3>
 
                 
@@ -87,7 +87,7 @@
 
                     {% if cl.id_user == user and cl.id_lg.date|date:"Y-m-d" > today_date %}
                         <li class="list-group-item d-flex justify-content-between align-items-center instance_admin">
-                            Lecture Group: {{ cl.id_lg.title }}, Date: {{ cl.id_lg.date }}
+                            Book Group: {{ cl.id_lg.title }}, Date: {{ cl.id_lg.date }}
                         </li>
                     {% endif %}
                 {% endfor %}
