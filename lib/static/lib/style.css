@@ -1,18 +1,47 @@
+body a{
+  text-decoration: none;
+}
+
 main {
   padding: 5% 5%;
   background-color: rgb(187, 187, 187);
   min-height: 100vh;
 }
 
-body{
-
+.button_login{
+  margin: 0 1%;
 }
 
-div#navbarSupportedContent > a.test{
-  margin: 0 1%;
+.button_login{
+  margin: 0 0 0 1%;
 }
 
 div#navbarSupportedContent > div#welcome_div {
   color: white;
   margin: 0 1%;
+}
+
+div#navbarSupportedContent > span.display_role {
+  margin: 0 1%;
+}
+
+div.flex-container {
+  display: flex;
+}
+
+div.flex-container > div.nav-bar-admin{
+  flex: 1;
+}
+
+div.flex-container > div.main-admin{
+  flex: 4;
+}
+
+h1.nav-bar-h1{
+  margin: 5%;
+}
+
+ul.list-group li.instance_admin{
+  margin-left: 5%;
+  margin-right: 5%;
 }

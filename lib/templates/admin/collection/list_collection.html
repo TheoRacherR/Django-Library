@@ -1,0 +1,28 @@
+{% extends 'admin/index.html' %} 
+{% block title %} List of the collections {% endblock title %} {% block content %} {% load permission_tags %}
+
+<h1>List of collections</h1>
+
+<a class="btn btn-success" href="{% url 'add_collection_admin' %}" role="button">
+  <i class="bi bi-plus-circle"></i> Add a collection
+</a>
+
+<ul class="list-group">
+  {% for coll in context_collection %}
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+    {% if user|has_role:'bookseller,admin' %}
+    {{ coll.pk }} / {{ coll.name }}
+    <div>
+      <a class="btn btn-warning" href="{% url 'edit_collection_admin' coll.pk %}" role="button">
+        <i class="bi bi-pencil-square"></i>
+      </a>
+      <a class="btn btn-danger" href="{% url 'delete_collection_admin' coll.pk %}" role="button">
+        <i class="bi bi-trash"></i>
+      </a>
+    </div>
+    {% else %} {{ coll.pk }} / {{ coll.name }} {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+
+{% endblock content %}

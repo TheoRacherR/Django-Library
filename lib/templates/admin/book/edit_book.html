@@ -1,0 +1,54 @@
+{% extends 'admin/index.html' %} 
+{% block title %} Edit a book {% endblock title %}
+
+{% block content %}
+
+<h1>Edit the book {{ book.title }}</h1>
+<form action="{% url 'edit_book_admin' book.pk %}" method="post">
+  {% csrf_token %}
+  <fieldset>
+    <div class="mb-3">
+      <label for="title" class="form-label">Title</label>
+      <input type="text" name="title" class="form-control" id="title" value="{{book.title}}" />
+    </div>
+    <div class="mb-3">
+      <label for="author" class="form-label">Author</label>
+      <input type="text" name="author" class="form-control" id="author" value="{{book.author}}" />
+    </div>
+    <div class="mb-3">
+      <label for="url_image" class="form-label">Url of the image</label>
+      <input type="text" name="url_image" class="form-control" id="url_image" value="{{book.url_image}}" />
+    </div>
+    <div class="mb-3">
+      <label for="publisher" class="form-label">Publisher</label>
+      <input type="text" name="publisher" class="form-control" id="publisher" value="{{book.publisher}}" />
+    </div>
+    <div class="mb-3">
+      <label for="collection" class="form-label">Collection</label>
+      <select id="collection" class="form-select" name="collection">
+        {% for collec in context_collection %}
+          {% if collec == book.collection %}
+            <option value="{{ collec.id }}" selected>{{ collec }}</option>
+          {% else %}
+            <option value="{{ collec.id }}">{{ collec }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="genre" class="form-label">Genre</label>
+      <select id="genre" class="form-select" name="genre">
+        {% for gen in context_genre %}
+          {% if gen == book.genre %}
+            <option value="{{ gen.id }}" selected>{{ gen }}</option>
+          {% else %}
+            <option value="{{ gen.id }}">{{ gen }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+  </fieldset>
+  <button type="submit" class="btn btn-success">Edit</button>
+</form>
+
+{% endblock content %}

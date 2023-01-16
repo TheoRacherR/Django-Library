@@ -1,0 +1,25 @@
+{% extends 'admin/index.html' %} 
+
+{% block title %} Add an instance of "{{ book.title }}" {% endblock title %} {% block content %}
+
+<h1>Add instance to the book {{ book.title }}</h1>
+<form action="{% url 'add_instance_admin' book.pk %}" method="post">
+  {% csrf_token %}
+  <fieldset>
+    <div class="mb-3">
+      <label for="library" class="form-label">Library</label>
+      <select id="library" class="form-select" name="library">
+        {% for lib in context_libraries %}
+        <option value="{{ lib.id }}">{{ lib.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="nb" class="form-label">Number</label>
+      <input type="number" name="nb" class="form-control" id="nb" />
+    </div>
+  </fieldset>
+  <button type="submit" class="btn btn-success">Create</button>
+</form>
+
+{% endblock content %}

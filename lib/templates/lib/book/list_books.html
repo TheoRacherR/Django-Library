@@ -1,22 +1,58 @@
 {% extends 'lib/index.html' %}
 
+{% block title %}
+  List of the books
+{% endblock title %}
+
 {% block content %}
+    {% load permission_tags %}
+
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            {% if t and n %}
+                <h1>{{ t }}: {{ n }}</h1>
+            {% else %}
+                <h1>{{ search }}</h1>
+            {% endif %}
+        </div>
+        <div>
+            <form action="{% url 'list_books' idL=0 idG=0 idC=0 %}" method="post">
+                {% csrf_token %}
+                {% comment %} <li class="list-group-item d-flex justify-content-between align-items-center"> {% endcomment %}
+                    <fieldset>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                            <div class="mb-3">
+                                <select id="collection" class="form-select" name="collection">
+                                    {% for coll in context_collection %}
+                                        <option value="{{ coll.id }}">{{ coll.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <select id="genre" class="form-select" name="genre">
+                                    {% for gen in context_genre %}
+                                        <option value="{{ gen.id }}">{{ gen.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% comment %} </li> {% endcomment %}
+                    </fieldset>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </li>
+            </form>
+        </div>
+    </li>
 
     <ul class="list-group">
 
         {% for book in books %}
 
             <li class="list-group-item d-flex justify-content-between align-items-center"> 
-                {{ book.pk }} / {{ book.title }}
+                {{ book.pk }} / {{ book.title }} / Collection: {{ book.collection.name }} / Genre: {{ book.genre.name }}
                 <a class="btn btn-primary" href="{% url 'book_page' book.pk %}" role="button">
                     <i class="bi bi-pencil-square"></i>
                 </a>
-                <a class="btn btn-success" href="{% url 'add_instance' book.pk %}" role="button">
-                    <i class="bi bi-pencil-square"></i>
-                </a>
-                {% comment %} <a class="btn btn-warning" href="{% url 'edit_book' book.pk %}" role="button">
-                    <i class="bi bi-pencil-square"></i>
-                </a> {% endcomment %}
            </li>
         {% endfor %}
 

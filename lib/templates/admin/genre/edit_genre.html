@@ -1,0 +1,24 @@
+{% extends 'admin/index.html' %} 
+{% block title %} Edit a genre {% endblock title %}
+
+{% block content %}
+
+<h1>Edit a genre</h1>
+<form action="{% url 'edit_genre_admin' gen.pk %}" method="post">
+  {% csrf_token %}
+  <fieldset>
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input
+        type="text"
+        name="name"
+        class="form-control"
+        id="name"
+        value="{{ gen.name }}"
+      />
+    </div>
+  </fieldset>
+  <button type="submit" class="btn btn-success">Edit</button>
+</form>
+
+{% endblock content %}

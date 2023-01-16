@@ -1,0 +1,18 @@
+{% extends 'admin/index.html' %} 
+{% block title %} Add a collection {% endblock title %} 
+
+{% block content %}
+
+<h1>Add a new collection</h1>
+<form action="{% url 'add_collection_admin' %}" method="post">
+  {% csrf_token %}
+  <fieldset>
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input type="text" name="name" class="form-control" id="name" />
+    </div>
+  </fieldset>
+  <button type="submit" class="btn btn-success">Create</button>
+</form>
+
+{% endblock content %}

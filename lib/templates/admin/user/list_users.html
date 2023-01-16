@@ -1,0 +1,77 @@
+{% extends 'admin/index.html' %} 
+{% block title %} List of the users {% endblock title %} 
+{% block content %} 
+  {% load permission_tags %}
+  <h1>List of users</h1>
+  <ul class="list-group">
+    {% for u in context_users %}
+      {% comment %} {% if not u == user %} {% endcomment %}
+    
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <a href="{% url 'page_user' u.id %}">
+            {{ u.id }} / {{ u.username }} / {{ u.date_joined|date:"d M Y h:i" }} / 
+            Role : 
+            {% if u|has_role:"admin" %}
+              Admin
+            {% elif u|has_role:"bookseller" %}
+              Librarian
+            {% else %}
+              User
+            {% endif %}
+          </a>
+
+          {% if user|has_role:'bookseller,admin' %}
+            <div>
+              <a
+                class="btn btn-warning"
+                href="{% url 'edit_user_admin' u.id %}"
+                role="button"
+              >
+                <i class="bi bi-pencil-square"></i>
+              </a>
+              {% if not u|has_role:'customer' %}
+                {% comment %} Button Change to role Customer {% endcomment %}
+                <a
+                  class="btn btn-primary"
+                  href="{% url 'set_role' id=u.id role="customer" %}"
+                  role="button"
+                >
+                  <i class="bi bi-person-fill"></i>
+                </a>
+              {% endif %}
+              {% if not u|has_role:'bookseller' %}
+                {% comment %} Button Change to role Bookseller {% endcomment %}
+                <a
+                  class="btn btn-primary"
+                  href="{% url 'set_role' id=u.id role="bookseller" %}"
+                  role="button"
+                >
+                  <i class="bi bi-journal"></i>
+                </a>
+              {% endif %}
+              {% if not u|has_role:'admin' %}
+                {% comment %} Button Change to role Admin {% endcomment %}
+                <a
+                  class="btn btn-primary"
+                  href="{% url 'set_role' id=u.id role="admin" %}"
+                  role="button"
+                >
+                  <i class="bi bi-star-fill"></i>
+                </a>
+              {% endif %}
+              {% comment %} Delete user {% endcomment %}
+              <a
+                class="btn btn-danger"
+                href="{% url 'delete_user_admin' u.id %}"
+                role="button"
+              >
+                <i class="bi bi-trash3-fill"></i>
+              </a>
+            </div>
+          {% endif %}
+        </li>
+      {% comment %} {% endif %} {% endcomment %}
+    {% endfor %}
+  </ul>
+
+{% endblock content %}

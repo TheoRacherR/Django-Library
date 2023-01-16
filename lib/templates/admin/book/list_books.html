@@ -1,0 +1,115 @@
+{% extends 'admin/index.html' %} 
+{% block title %} List of the books {% endblock title %} 
+
+{% block content %} {% load permission_tags %}
+
+<h1>List of the books</h1>
+
+<a class="btn btn-success" href="{% url 'add_book_admin' %}" role="button">
+  <i class="bi bi-plus-circle"></i> Add a book
+</a>
+
+<ul class="list-group">
+  {% for book in context_books %}
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+    <div>
+      <a href="{% url 'book_page_admin' book.pk %}">
+        {{ book.pk }} / {{ book.title }} 
+      </a>
+        {% if book.collection.name == "No collection" %}
+          <span style="color:#ad1409">
+            / Genre: {{ book.collection.name }}
+          </span>
+        {% else %}
+          / Genre: {{ book.collection.name }}
+        {% endif %}
+        {% if book.genre.name == "No genre" %}
+          <span style="color:#ad1409">
+            / Genre: {{ book.genre.name }}
+          </span>
+        {% else %}
+          / Genre: {{ book.genre.name }}
+        {% endif %}
+    </div>
+    <div>
+      <a
+        class="btn btn-warning"
+        href="{% url 'edit_book_admin' book.pk %}"
+        role="button"
+      >
+        <i class="bi bi-pencil-square"></i>
+      </a>
+      {% if user|has_role:'bookseller,admin' %}
+      <a
+        class="btn btn-success"
+        href="{% url 'add_instance_admin' book.pk %}"
+        role="button"
+      >
+        <i class="bi bi-plus-circle"></i> instance
+      </a>
+      <a
+        class="btn btn-danger"
+        href="{% url 'delete_book_admin' book.pk %}"
+        role="button"
+      >
+        <i class="bi bi-trash3-fill"></i>
+      </a>
+      {% endif %}
+    </div>
+  </li>
+
+  <ul class="list-group">
+    {% for instance in context_instances %} {% if instance.id_books == book and instance.status == 0 %}
+    <li
+      class="list-group-item d-flex justify-content-between align-items-center instance_admin"
+    >
+      {{ instance.id_library.name }} : Not borrowed
+      <div>
+        <a
+          class="btn btn-primary"
+          href="{% url 'borrow_book_admin' instance.pk %}"
+          role="button"
+        >
+          <i class="bi bi-arrow-down-square"></i>
+        </a>
+        <a
+          class="btn btn-danger"
+          href="{% url 'delete_instance_admin' instance.pk %}"
+          role="button"
+        >
+          <i class="bi bi-trash3-fill"></i>
+        </a>
+      </div>
+    </li>
+    {% endif %} {% endfor %}
+  </ul>
+
+  {% endfor %}
+</ul>
+
+{% endblock content %} {% comment %} {% block script %}
+<script type="text/javascript">
+  $(".column").sortable({
+    connectWith: ".column",
+    handle: ".portlet-header",
+    cancel: ".portlet-toggle",
+    placeholder: "drop-placeholder",
+  });
+
+  $(".portlet-header").on("click", function (e) {
+    if ($(e.target).children().last().hasClass("fa-caret-down")) {
+      $(e.target)
+        .children()
+        .last()
+        .removeClass("fa-caret-down")
+        .addClass("fa-caret-up");
+    } else if ($(e.target).children().last().hasClass("fa-caret-up")) {
+      $(e.target)
+        .children()
+        .last()
+        .removeClass("fa-caret-up")
+        .addClass("fa-caret-down");
+    }
+  });
+</script>
+{% endblock script %} {% endcomment %}

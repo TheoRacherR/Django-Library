@@ -1,54 +1,123 @@
+{% load permission_tags %}
 <nav class="navbar navbar-expand-lg bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand text-light" href="{% url 'index' %}">Library</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Books
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'add_book' %}">Add Books</a></li>
-                        <li><a class="dropdown-item" href="{% url 'list_books' %}">List books</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Libraries
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'add_library' %}">Add Libray</a></li>
-                        <li><a class="dropdown-item" href="{% url 'list_libraries' %}">List Libraries</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        People
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'list_peoples' %}">List People</a></li>
-                    </ul>
-                </li>
-            </ul>
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
-            {% if user.is_authenticated %}
-                {% comment %} <div id="welcome_div">Welcome {{ user.username }}</div> {% endcomment %}
-                <form action="{% url 'logout_def' %}" method="post">
-                    {% csrf_token %}
-                    <fieldset>
-                        <input type="submit" class="btn btn-secondary" value="Logout" />
-                    </fieldset>
-                </form>
-                {% else %}
-                    <a class="btn btn-primary test" href="{% url 'login_def' %}" role="button">Log in</a>
-                    <a class="btn btn-success" href="{% url 'signin_def' %}" role="button">Sign in</a>
-            {% endif %}
-        </div>
+  <div class="container-fluid">
+    <a class="navbar-brand text-light" href="{% url 'index' %}">Library</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% comment %} Book {% endcomment %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Books
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="{% url 'list_books' idL=0 idG=0 idC=0%}">List books</a>
+            </li>
+          </ul>
+        </li>
+
+        {% comment %} Libraries {% endcomment %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Libraries
+          </a>
+          <ul class="dropdown-menu">
+            {% for lib in context_libraries %}
+              <li>
+                <a class="dropdown-item" href="{% url 'list_books' idL=lib.pk idG=0 idC=0 %}">{{ lib.name }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+
+        {% comment %} Collection {% endcomment %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Collection
+          </a>
+          <ul class="dropdown-menu">
+            {% for c in context_collection %}
+              <li>
+                <a class="dropdown-item" href="{% url 'list_books' idL=0 idG=0 idC=c.pk %}">{{ c.name }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+
+        {% comment %} Genre {% endcomment %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Genre
+          </a>
+          <ul class="dropdown-menu">
+            {% for g in context_genre %}
+              <li>
+                <a class="dropdown-item" href="{% url 'list_books' idL=0 idG=g.pk idC=0 %}">{{ g.name }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link text-light" href="{% url 'list_lecture_groups' %}">
+            Book Groups
+          </a>
+          {% comment %} <ul class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'list_lecture_groups' %}">All book groups</a>
+            <a class="dropdown-item" href="{% url 'list_lecture_group' %}">My book groups</a>
+          </ul> {% endcomment %}
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link text-light" href="{% url 'list_book_borrowed' %}">
+            My books borrowed
+          </a>
+        </li>
+
+        {% comment %} Forum {% endcomment %}
+        <li class="nav-item dropdown">
+          <a class="nav-link text-light" href="{% url 'list_forum' %}">
+            Forum
+          </a>
+        </li>
+
+      </ul>
+
+
+      {% comment %} Right {% endcomment %}
+      {% if user|has_role:"bookseller,admin" %}
+        <a class="btn btn-danger button_singin" href="{% url 'admin' %}" role="button">Go to backoffice</a>
+      {% endif %}
+
+      <span class="navbar-text text-light display_role">
+        Role : 
+        {% if user|has_role:"admin" %}
+          Admin
+        {% elif user|has_role:"bookseller" %}
+          Librarian
+        {% else %}
+          User
+        {% endif %}
+      </span>
+
+      <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+      {% if user.is_authenticated %}
+        <form action="{% url 'logout_def' %}" method="post">
+          {% csrf_token %}
+          <fieldset>
+            <input type="submit" class="btn btn-secondary button_logout" value="Logout" />
+          </fieldset>
+        </form>
+      {% else %}
+        <a class="btn btn-primary button_login" href="{% url 'login_def' %}" role="button">Log in</a>
+        <a class="btn btn-success button_singin" href="{% url 'signin_def' %}" role="button">Sign in</a>
+      {% endif %}
     </div>
-  </nav>
+  </div>
+</nav>

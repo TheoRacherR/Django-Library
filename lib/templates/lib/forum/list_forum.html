@@ -1,0 +1,31 @@
+{% extends 'lib/index.html' %} 
+
+{% block title %} List of all forum subjects {% endblock title %} 
+{% block content %} 
+  {% load permission_tags %}
+
+  <h1>List of all forum subjects</h1>
+
+  <a class="btn btn-success" href="{% url 'add_forum' %}" role="button">
+    <i class="bi bi-plus-circle"></i> Add a forum
+  </a>
+
+  <ul class="list-group">
+    {% if context_forum %}
+        {% for fo in context_forum %} 
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{% url 'forum_page' fo.pk %}">
+                    {{ fo.pk }} / Title : {{ fo.title }} / Creation date: {{ fo.creation_date|date:"d/m/Y" }}
+                </a>
+                <a class="btn btn-success" href="{% url 'delete_forum' fo.pk %}" role="button">
+                    <i class="bi bi-plus-circle"></i>
+                </a>
+            </li>
+        {% endfor %}
+
+        {% else %}
+        No forum
+    {% endif %}
+  </ul>
+
+{% endblock content %}

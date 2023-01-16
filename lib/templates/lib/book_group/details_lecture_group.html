@@ -1,0 +1,103 @@
+{% extends 'lib/index.html' %}
+
+{% block title %} Details of "{{lecture_group.title }}" {% endblock title %} 
+
+{% block content %} 
+{% load permission_tags %}
+
+	<p>Owner: {{ lecture_group.owner.username}}</p>
+	<p>Title: {{ lecture_group.title }}</p>
+	<p>Address: {{ lecture_group.address }}</p>
+	<p>Created at: {{ lecture_group.creation_date |date:"d M Y h:i" }}</p>
+	<p>Last update : {{ lecture_group.modification_date |date:"d M Y h:i" }}</p>
+
+	<h3>People in that book group</h3>
+
+	{% if lecture_group.owner == user %}
+	{% comment %} <a
+	class="btn btn-success"
+	href="{% url 'add_lecturer' lecture_group.pk %}"
+	role="button"
+	>
+	Add user to that book group
+	</a> {% endcomment %}
+	<form action="{% url 'add_lecturer' lecture_group.pk %}" method="post">
+		{% csrf_token %}
+		<fieldset>
+			<div class="mb-3">
+				<label for="user" class="form-label">Select the person</label>
+				<select id="user" class="form-select" name="user">
+					{% for u in context_users %}
+						<option value="{{ u.id }}">{{ u.username }}</option>
+					{% endfor %}
+				</select>
+		  	</div>
+		</fieldset>
+		<button type="submit" class="btn btn-success">Create</button>
+	</form>
+	{% endif %} 
+	
+	{% if lecturer %}
+		<ul class="list-group">
+				{% for lect in lecturer %}
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						{{ lect.id_user.username }}
+						<a
+						class="btn btn-danger"
+						href="{% url 'delete_lecturer' lect.id %}"
+						role="button">
+							<i class="bi bi-trash3-fill"></i>
+						</a>
+					</li>
+				{% endfor %}
+
+			
+		</ul>
+	{% else %}
+			No people yet
+	{% endif %}
+
+	<h3>Book group sessions</h3>
+
+	{% if lecture_group.owner == user %}
+
+	<a
+	class="btn btn-success"
+	href="{% url 'add_lecture_group_details' lecture_group.pk %}"
+	role="button"
+	>
+	Add book group sessions
+	</a>
+	{% endif %}
+
+	<h1>Add book group details {{ lg.title }}</h1>
+	<form action="{% url 'add_lecture_group_details' lecture_group.pk %}" method="post">
+		{% csrf_token %}
+		<fieldset>
+		<div class="mb-3">
+			<label for="date_start" class="form-label">From</label>
+			<input type="date" name="date_start" class="form-control" id="date_start">
+		</div>
+		<div class="mb-3">
+			<label for="date_end" class="form-label">To</label>
+			<input type="date" name="date_end" class="form-control" id="date_end">
+		</div>
+		</fieldset>
+		<button type="submit" class="btn btn-success">Submit</button>
+	</form>
+	
+	{% if lg_details %}
+		<ul class="list-group">
+			{% for det in lg_details %}
+				<li class="list-group-item d-flex justify-content-between align-items-center">
+					{{ det.date_start|date:"d M Y" }} to {{ det.date_end|date:"d M Y" }}
+				</li>
+			{% endfor %}
+		</ul>
+	{% else %}
+		<p>
+			No session yet
+		</p>
+	{% endif %} 
+
+{% endblock content %}

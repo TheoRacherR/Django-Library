@@ -1,0 +1,45 @@
+{% extends 'admin/index.html' %} 
+{% block title %} List of the book group {% endblock title %} {% block content %} {% load permission_tags %}
+
+<h1>List of the book group</h1>
+
+<a
+  class="btn btn-success"
+  href="{% url 'add_lecture_group_admin' %}"
+  role="button"
+>
+  <i class="bi bi-plus-circle"></i> Add a book group
+</a>
+
+<ul class="list-group">
+  {% for lg in context_lecture_group %}
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+    {% if user|has_role:'bookseller,admin' %}
+    <a href="{% url 'details_lg_admin' lg.pk %}" role="button">
+      {% comment %} <i class="bi bi-pencil-square"></i> {% endcomment %} 
+      {{ lg.pk }} / Date : {{ lg.date|date:"d/m/Y" }} / Name : {{ lg.title }}
+    </a>
+
+    <div>
+      <a
+        class="btn btn-warning"
+        href="{% url 'edit_lecture_group_admin' lg.pk %}"
+        role="button"
+      >
+        <i class="bi bi-pencil-square"></i>
+      </a>
+      <a
+        class="btn btn-danger"
+        href="{% url 'delete_lecture_group_admin' lg.pk %}"
+        role="button"
+      >
+        <i class="bi bi-trash"></i>
+      </a>
+    </div>
+
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+
+{% endblock content %}

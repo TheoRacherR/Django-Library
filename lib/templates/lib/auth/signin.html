@@ -1,10 +1,25 @@
 {% extends 'lib/index.html' %}
 
+{% block title %}
+  Sign in
+{% endblock title %}
+
 {% block content %}
   <h1>Signin</h1>
   <form action="{% url 'signin_def' %}" method="post">
     {% csrf_token %}
     <fieldset>
+
+      <divclass="mb-3">
+        <label for="firstname" class="form-label">First Name</label>
+        <input type="text" name="firstname" id="firstname" class="form-control" aria-descr/>
+      </div>
+
+      <divclass="mb-3">
+        <label for="lastname" class="form-label">Last Name</label>
+        <input type="text" name="lastname" id="lastname" class="form-control" aria-descr/>
+      </div>
+
       <divclass="mb-3">
         <label for="username" class="form-label">Username</label>
         <input type="text" name="username" id="username" class="form-control" aria-descr/>

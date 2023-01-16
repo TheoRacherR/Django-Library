@@ -1,0 +1,51 @@
+{% load permission_tags %}
+<h1 class="nav-bar-h1">Backoffice</h1>
+<div class="list-group">
+  <a
+    class="list-group-item list-group-item-primary list-group-item-action"
+    href="{% url 'index' %}"
+  >
+    Home</a
+  >
+  {% if user|has_role:"admin" %}
+  <div>Admin: </div>
+  <a
+    class="list-group-item list-group-item-action"
+    href="{% url 'list_users_admin' %}"
+    ><i class="bi bi-people-fill"></i> User</a
+  >
+  <a
+    class="list-group-item list-group-item-action"
+    href="{% url 'list_lecture_group_admin' %}"
+    ><i class="bi bi-calendar-week-fill"></i> Book Group</a
+  >
+  {% endif %}
+
+  {% if user|has_role:"admin, booksheller" %}
+  <a
+    class="list-group-item list-group-item-action"
+    href="{% url 'list_libraries_admin' %}"
+    ><i class="bi bi-building-fill"></i> Library</a
+  >
+  <a
+    class="list-group-item list-group-item-action"
+    href="{% url 'list_collection_admin' %}"
+    ><i class="bi bi-bookshelf"></i> Collection</a
+  >
+  <a
+    class="list-group-item list-group-item-action"
+    href="{% url 'list_genre_admin' %}"
+    ><i class="bi bi-list-nested"></i> Genre</a
+  >
+  <a
+    class="list-group-item list-group-item-action"
+    href="{% url 'list_books_admin' %}"
+    ><i class="bi bi-book"></i> Book</a
+  >
+  <a
+    class="list-group-item list-group-item-action"
+    href="{% url 'list_borrows_admin' %}"
+    ><i class="bi bi-arrow-down-up"></i> Borrows</a
+  >
+  {% endif %}
+</div>

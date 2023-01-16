@@ -1,0 +1,28 @@
+{% extends 'admin/index.html' %} 
+{% block title %} List of the genres {% endblock title %} {% block content %} {% load permission_tags %}
+
+<h1>List of genres</h1>
+
+<a class="btn btn-success" href="{% url 'add_genre_admin' %}" role="button">
+  <i class="bi bi-plus-circle"></i> Add a genre
+</a>
+
+<ul class="list-group">
+  {% for gen in context_genre %}
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+    {% if user|has_role:'bookseller,admin' %}
+    {{ gen.pk }} / {{ gen.name }}
+    <div>
+      <a class="btn btn-warning" href="{% url 'edit_genre_admin' gen.pk %}" role="button">
+        <i class="bi bi-pencil-square"></i>
+      </a>
+      <a class="btn btn-danger" href="{% url 'delete_genre_admin' gen.pk %}" role="button">
+        <i class="bi bi-trash"></i>
+      </a>
+    </div>
+    {% else %} {{ gen.pk }} / {{ gen.name }} {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+
+{% endblock content %}
