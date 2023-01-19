@@ -45,3 +45,19 @@ ul.list-group li.instance_admin{
   margin-left: 5%;
   margin-right: 5%;
 }
+
+div.messages-forum{
+  border-radius: 15px;
+  background-color: #a6a6a6;
+  margin-bottom: 2em;
+  padding: 1.5em;
+}
+
+
+div.bloc_details{
+  /* border: 3px solid black; */
+  background-color: rgb(147, 147, 147);
+  border-radius: 15px;
+  margin-bottom: 2em;
+  padding: 2em;
+}

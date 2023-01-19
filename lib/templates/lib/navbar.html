@@ -61,28 +61,32 @@
           </ul>
         </li>
 
-        <li class="nav-item dropdown">
-          <a class="nav-link text-light" href="{% url 'list_lecture_groups' %}">
-            Book Groups
-          </a>
-          {% comment %} <ul class="dropdown-menu">
-            <a class="dropdown-item" href="{% url 'list_lecture_groups' %}">All book groups</a>
-            <a class="dropdown-item" href="{% url 'list_lecture_group' %}">My book groups</a>
-          </ul> {% endcomment %}
-        </li>
+        {% if user.is_authenticated and user|has_role:"admin" %}
 
-        <li class="nav-item dropdown">
-          <a class="nav-link text-light" href="{% url 'list_book_borrowed' %}">
-            My books borrowed
-          </a>
-        </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link text-light" href="{% url 'list_lecture_groups' %}">
+              My book Groups
+            </a>
+            {% comment %} <ul class="dropdown-menu">
+              <a class="dropdown-item" href="{% url 'list_lecture_groups' %}">All book groups</a>
+              <a class="dropdown-item" href="{% url 'list_lecture_group' %}">My book groups</a>
+            </ul> {% endcomment %}
+          </li>
 
-        {% comment %} Forum {% endcomment %}
-        <li class="nav-item dropdown">
-          <a class="nav-link text-light" href="{% url 'list_forum' %}">
-            Forum
-          </a>
-        </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link text-light" href="{% url 'list_book_borrowed' %}">
+              My books borrowed
+            </a>
+          </li>
+
+          {% comment %} Forum {% endcomment %}
+          <li class="nav-item dropdown">
+            <a class="nav-link text-light" href="{% url 'list_forum' %}">
+              Forum
+            </a>
+          </li>
+          
+        {% endif %}
 
       </ul>
 
@@ -92,16 +96,18 @@
         <a class="btn btn-danger button_singin" href="{% url 'admin' %}" role="button">Go to backoffice</a>
       {% endif %}
 
-      <span class="navbar-text text-light display_role">
-        Role : 
-        {% if user|has_role:"admin" %}
-          Admin
-        {% elif user|has_role:"bookseller" %}
-          Librarian
-        {% else %}
-          User
-        {% endif %}
-      </span>
+      {% if user.is_authenticated %}
+        <span class="navbar-text text-light display_role">
+          Role : 
+          {% if user|has_role:"admin" %}
+            Admin
+          {% elif user|has_role:"bookseller" %}
+            Librarian
+          {% else %}
+            User
+          {% endif %}
+        </span>
+      {% endif %}
 
       <form action="{% url 'search' %}" method="post">
         {% csrf_token %}

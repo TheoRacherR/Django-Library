@@ -1,0 +1,25 @@
+{% extends 'admin/index.html' %} 
+{% block title %} Edit a forum {% endblock %}
+
+{% block content %}
+
+<h1>Edit a forum</h1>
+<form action="{% url 'edit_forum_admin' %}" method="post">
+  {% csrf_token %}
+  <fieldset>
+    <div class="mb-3">
+      <label for="title" class="form-label">Title</label>
+      <input type="text" name="title" class="form-control" id="title" value="{{ forum.title }}"/>
+    </div>
+    <div class="mb-3">
+      <textarea name="text" id="text" cols="50" rows="10" placeholder="Tell us more about this forum">
+        {{ forum.text }}
+      </textarea>
+    </div>
+  </fieldset>
+  <button type="submit" class="btn btn-success">Edit</button>
+</form>
+
+{% endblock content %}
+
+Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate, iure ratione officiis at possimus vitae cum voluptatum, quia, ad veniam aliquid architecto recusandae error nesciunt doloremque voluptates a? Nisi, fugiat.

@@ -178,6 +178,7 @@ def details_book(request, id):
 def list_books(request, idL, idC, idG):
     # try:
 
+    m = ''
     if request.method == 'POST':
         collec = Collection.objects.get(pk=request.POST["collection"])
         gen = Genre.objects.get(pk=request.POST["genre"])
@@ -186,8 +187,7 @@ def list_books(request, idL, idC, idG):
         search = "Collection: '" + collec.name + "' and genre: '" + gen.name + "'"
 
     else:
-
-        m = ''
+    
 
         if idL != 0:
             library = Library.objects.get(pk=idL)
@@ -439,8 +439,13 @@ def delete_genre_admin(request,id):
 ##Instance
 #site
 def list_borrows(request):
-    instances = InstanceBook.objects.filter(id_user=request.user)
-    return render(request, 'lib/book/list_borrows.html', { 'instances': instances })
+    if request.user.is_authenticated:
+        instances = InstanceBook.objects.filter(id_user=request.user)
+        return render(request, 'lib/book/list_borrows.html', { 'instances': instances })
+    else:
+        messages.error(request, "403, You are not connected")
+        return redirect("login_def")
+    
 
 #admin
 def add_instance_admin(request,id):
@@ -684,8 +689,6 @@ def edit_user(request):
     except User.DoesNotExist:
         return redirect("index")
 
-#edit user
-
 #admin
 def page_user(request, id):
     if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
@@ -800,8 +803,16 @@ def delete_user_admin(request,id):
 def lg_page(request,id):
     try:
         lecture_group = LectureGroup.objects.get(pk=id)
+
         lecturer = Lecturer.objects.filter(id_lg=lecture_group)
         lg_details = LectureGroupDetails.objects.filter(id_lg=lecture_group)
+
+        location = geocoder.osm(lecture_group.address + " France")
+        lat = location.lat
+        lng = location.lng
+        m = folium.Map(location=[lat, lng], zoom_start=12)
+        folium.Marker(location=[lat, lng], popup=lecture_group.address, icon=folium.Icon("green"), tooltip="Click here").add_to(m)
+        m = m._repr_html_()
 
     except LectureGroup.DoesNotExist:
         return render('list_lecture_groups')
@@ -810,10 +821,15 @@ def lg_page(request,id):
         "lecture_group": lecture_group,
         "lecturer": lecturer,
         "lg_details": lg_details,
+        "m": m
     })
 
 def list_lecture_groups(request):
-    return render(request, "lib/book_group/list_lecture_groups.html")
+    if request.user.is_authenticated:
+        return render(request, "lib/book_group/list_lecture_groups.html")
+    else:
+        messages.error(request, "403, You are not connected")
+        return redirect("login_def")
 
 def add_lecture_group(request):
     
@@ -1104,11 +1120,11 @@ def delete_forum(request,id):
 def forum_page(request,id):
     try:
         forum = Forum.objects.get(pk=id)
-        messages = Message.objects.filter(id_forum=forum).order_by('-creation_date')
+        message = Message.objects.filter(id_forum=forum).order_by('-creation_date')
 
         return render(request, 'lib/forum/forum_page.html', {
             'forum': forum,
-            'messages': messages,
+            'messages': message,
         })
 
     except Forum.DoesNotExist:
@@ -1140,17 +1156,17 @@ def add_message(request,id):
 
 def edit_message(request,id):
     try:
+        message = Message.objects.get(id=id)
         if request.method == 'POST':
-            message = Message.objects.get(id=id)
             message.text = request.POST['text']
             message.save()
             messages.success(request, 'message edited')
-            return redirect('forum_page', id=id)
+            return redirect('forum_page', id=message.id_forum.pk)
         else:
-            return render(request, "lib/forum/message/edit_message.html")
+            return render(request, "lib/forum/edit_message.html", { "message": message })
 
     except Message.DoesNotExist:
-        messages.error(request, 'error')
+        messages.error(request, 'errors')
         return redirect('list_forum')
 
 def delete_message(request,id):
@@ -1167,7 +1183,7 @@ def delete_message(request,id):
         messages.error(request, 'error')
 
 ##admin
-def list_forum_admin(request):
+def list_forums_admin(request):
     if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
         messages.error(request, '403, Access denied')
         return redirect('index')
@@ -1180,12 +1196,13 @@ def add_forum_admin(request):
     forum = Forum()
     if request.method == 'POST':
         forum.title = request.POST['title']
+        forum.text = request.POST['text']
         forum.save()
         messages.success(request, 'Forum added')
-        return redirect('list_forum_admin')
+        return redirect('list_forums_admin')
     
     else:
-        return render(request, 'lib/forum/add_forum.html')
+        return render(request, 'admin/forum/add_forum.html')
 
 def edit_forum_admin(request,id):
     try:
@@ -1196,15 +1213,16 @@ def edit_forum_admin(request,id):
         forum = Forum.objects.get(id=id)
         if request.method == 'POST':
             forum.title = request.POST['title']
+            forum.title = request.POST['title']
             forum.save()
             messages.success(request, 'Forum edited')
-            return redirect('list_forum_admin')
+            return redirect('list_forums_admin')
         
         else:
             return render(request, 'admin/forum/edit_forum.html')
     except Forum.DoesNotExist:
         messages.error(request, "error")
-        return render('list_forum_admin')   
+        return render('list_forums_admin')   
 
 def delete_forum_admin(request,id):
     try:
@@ -1215,11 +1233,11 @@ def delete_forum_admin(request,id):
         forum.delete()
 
         messages.success(request, 'Forum deleted')
-        return redirect('list_forum_admin')
+        return redirect('list_forums_admin')
 
     except Forum.DoesNotExist:
         messages.error(request, 'error')
-        return redirect('list_forum_admin')
+        return redirect('list_forums_admin')
 
 def forum_page_admin(request,id):
     try:
@@ -1236,7 +1254,7 @@ def forum_page_admin(request,id):
 
     except Forum.DoesNotExist:
         messages.error(request, 'error')
-        return redirect('list_forum_admin')
+        return redirect('list_forums_admin')
 
 def edit_message_admin(request,id):
     try:

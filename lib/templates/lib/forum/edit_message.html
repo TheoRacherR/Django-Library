@@ -1,0 +1,18 @@
+{% extends 'lib/index.html' %} 
+{% block title %} Edit a message {% endblock %}
+
+{% block content %}
+
+<h1>Edit a message</h1>
+<form action="{% url 'edit_message' message.pk %}" method="post">
+  {% csrf_token %}
+  <fieldset>
+    <div class="mb-3">
+      <label for="text" class="form-label">Text</label>
+      <input type="text" name="text" class="form-control" id="text" value="{{ message.text }}"/>
+    </div>
+  </fieldset>
+  <button type="submit" class="btn btn-success">Edit</button>
+</form>
+
+{% endblock content %}

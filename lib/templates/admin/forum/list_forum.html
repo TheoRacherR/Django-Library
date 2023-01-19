@@ -1,0 +1,32 @@
+{% extends 'admin/index.html' %} 
+{% block title %} List of the forums {% endblock title %} 
+
+{% block content %} 
+  {% load permission_tags %}
+
+  <h1>List of the forums</h1>
+
+  <a class="btn btn-success" href="{% url 'add_forum_admin' %}" role="button">
+    <i class="bi bi-plus-circle"></i> Add a forum
+  </a>
+
+  <ul class="list-group">
+    {% for forum in context_forums %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <a href="{% url 'forum_page_admin' forum.pk %}">
+
+            {{ forum.pk }} / {{ forum.title }}
+
+            {% if forum.text %} 
+              / {{ forum.text|slice:'15'}} {% if forum.text|length > 17 %}...{% endif %}
+            {% endif %}
+
+          </a>
+        </div>
+      </li>
+
+    {% endfor %}
+  </ul>
+
+{% endblock content %} 

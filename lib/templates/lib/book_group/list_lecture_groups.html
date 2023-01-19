@@ -4,72 +4,47 @@
 {% block content %} 
   {% load permission_tags %}
 
-  <h1>Book groups</h1>
+  <div style="margin-bottom: 2em">
+    <h1>Book groups</h1>
+  </div>
 
-  <a class="btn btn-success" href="{% url 'add_lecture_group' %}" role="button">
-    <i class="bi bi-plus-circle"></i> Add a book group
-  </a>
+  <div style="margin-bottom: 2em">
+    <a class="btn btn-success" href="{% url 'add_lecture_group' %}" role="button">
+      <i class="bi bi-plus-circle"></i> Add a book group
+    </a>
+  </div>
+  
 
-  <h3>List of my book group</h3>
+  <div style="margin-bottom: 5em">
 
-  <ul class="list-group">
-    {% now "Y-m-d" as today_date %} 
-    {% if context_lecture_group %}
+    <h3>List of my book groups: </h3>
+
+    <ul class="list-group">
+      {% now "Y-m-d" as today_date %} 
+
       {% for l in context_lecture_group %} 
+
         {% if l.owner == user %}
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            <a href="{% url 'lg_page' l.pk %}">
               {{ l.pk }} / Name : {{ l.title }}
-            </a>
-            <a
-              class="btn btn-danger"
-              href="{% url 'delete_lecture_group' l.pk %}"
-              role="button"
-            >
-              <i class="bi bi-x-square"></i>
-            </a>
+
+            <div>
+              <a class="btn btn-success" href="{% url 'lg_page' l.pk %}" role="button">
+                Details
+              </a>
+
+                <a class="btn btn-danger" href="{% url 'delete_lecture_group' l.pk %}" role="button">
+                  <i class="bi bi-x-square"></i>
+                </a>
+
+            </div>
           </li>
         {% endif %} 
+        
       {% endfor %} 
-    {% endif %} 
-    {% if lect %} My passed book groups 
-      {% for l in lect %} 
-        {% if l.id_lg.date|date:"Y-m-d" < today_date %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <a href="{% url 'lg_page' l.id_lg.pk %}">
-              {{ l.id_lg.pk }} / Date : {{ l.id_lg.date|date:"d/m/Y" }} / Name : {{
-              l.id_lg.title }}
-            </a>
-          </li>
-        {% endif %} 
-      {% endfor %} 
-    {% endif %}
-  </ul>
 
+    </ul>
+  </div>
 
-  <h3>List of all other book groups</h3>
-
-  <ul class="list-group">
-    {% now "Y-m-d" as today_date %} 
-    {% for cl in context_lecture_group %} 
-    {% if cl.owner != user %}
-      {% if cl.id_lg.date|date:"Y-m-d" < today_date %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <a href="{% url 'lg_page' cl.pk %}">
-            {{ cl.pk }} / Date : {{ cl.date|date:"d/m/Y" }} / Name : {{ cl.title }}
-          </a>
-
-          <a
-            class="btn btn-success"
-            href="{% url 'add_lecturer' cl.pk %}"
-            role="button"
-          >
-            <i class="bi bi-plus-circle"></i>
-          </a>
-        </li>
-      {% endif %}
-      {% endif %}
-    {% endfor %}
-  </ul>
 
 {% endblock content %}

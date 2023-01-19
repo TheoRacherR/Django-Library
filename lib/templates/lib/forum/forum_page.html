@@ -5,29 +5,58 @@
   {% load permission_tags %}
 
   <h1>Forum subject "{{ forum.title }}"</h1>
-  <p>Title: {{forum.title}} </p>
-  <p>Created at: {{ forum.creation_date |date:"d M Y h:i" }}</p>
-  <p>Last update : {{ forum.modification_date |date:"d M Y h:i" }}</p>
+  <p>{{ forum.text }}</p>
+  <p><span style="color: #5c5c5c">Posted: </span>{{ forum.creation_date |date:"d M Y h:i" }} | <span style="color: #5c5c5c"> Modified: </span>{{ forum.modification_date |date:"d M Y h:i" }}</p>
 
-  <form action="{% url 'add_message' forum.pk %}" method="post">
+  <form action="{% url 'add_message' forum.pk %}" method="post" style="display: flex; margin-bottom:2em">
     {% csrf_token %}
     <fieldset>
-      <div class="mb-3">
-        <label for="text" class="form-label">Title</label>
-        <input type="text" name="text" class="form-control" id="text" />
+      <div>
+        <input type="text" name="text" class="form-control" id="text" placeholder="New comment"/>
       </div>
     </fieldset>
-    <button type="submit" class="btn btn-success">Submit</button>
+    <button type="submit" class="btn btn-success" style="margin: auto 0 0 0">Submit</button>
   </form>
 
-  <ul class="list-group">
-    {% for mess in messages %}
+  {% for mess in messages %}
+    <div class="messages-forum">
+      <div>
+        {{ mess.text }}
+        <div class="details-messages-forum">
+          <div class="container text-center">
+            <div class="row">
+              <div class="col"></div>
+              <div class="col"></div>
+              <div class="col"></div>
+              <div class="col"></div>
+              <div class="col">
+                {% if mess.id_user == user or user|has_role:"admin" %}{% endif %}
+
+                {% if user.is_authenticated and user|has_role:"admin" %}
+                  <a class="btn btn-warning" href="{% url 'edit_message' mess.pk %}" role="button">Edit</a>
+                {% endif %}
+
+              </div>
+              <div class="col" style="color: #6e6e6e">
+
+                  asked {{ mess.creation_date|date:"d/m/Y" }}, by {{ mess.id_user.username }}
+                  <br>
+                  {% if mess.modification_date != created_date %}
+                    modified {{ mess.modification_date|date:"d/m/Y" }}
+                  {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  {% comment %} <ul class="list-group">
     <li class="list-group-item d-flex justify-content-between align-items-center"> 
         {{ mess.pk }} / From {{ mess.id_user.username }} the {{ mess.creation_date|date:"d-M-Y" }}
         Text : {{ mess.text }}
     </li>
-    {% endfor %}
-  </ul>
+  </ul> {% endcomment %}
 
 
 {% endblock content %}

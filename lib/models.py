@@ -70,6 +70,7 @@ class LectureGroupDetails(models.Model):
 
 class Forum(models.Model):
     title = models.CharField(max_length=200)
+    text = models.TextField(max_length=500, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
 

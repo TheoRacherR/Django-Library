@@ -15,30 +15,28 @@
                 <h1>{{ search }}</h1>
             {% endif %}
         </div>
-        <div>
-            <form action="{% url 'list_books' idL=0 idG=0 idC=0 %}" method="post">
+        <div >
+            <form action="{% url 'list_books' idL=0 idG=0 idC=0 %}" method="post" style="display:flex">
                 {% csrf_token %}
-                {% comment %} <li class="list-group-item d-flex justify-content-between align-items-center"> {% endcomment %}
                     <fieldset>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
 
-                            <div class="mb-3">
+                            <div>
                                 <select id="collection" class="form-select" name="collection">
                                     {% for coll in context_collection %}
                                         <option value="{{ coll.id }}">{{ coll.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="mb-3">
+                            <div>
                                 <select id="genre" class="form-select" name="genre">
                                     {% for gen in context_genre %}
                                         <option value="{{ gen.id }}">{{ gen.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            {% comment %} </li> {% endcomment %}
                     </fieldset>
-                    <button type="submit" class="btn btn-primary">Search</button>
+                    <button type="submit" class="btn btn-primary" style="margin: auto 0 0 0">Search</button>
                 </li>
             </form>
         </div>
@@ -50,8 +48,8 @@
 
             <li class="list-group-item d-flex justify-content-between align-items-center"> 
                 {{ book.pk }} / {{ book.title }} / Collection: {{ book.collection.name }} / Genre: {{ book.genre.name }}
-                <a class="btn btn-primary" href="{% url 'book_page' book.pk %}" role="button">
-                    <i class="bi bi-pencil-square"></i>
+                <a class="btn btn-success" href="{% url 'book_page' book.pk %}" role="button">
+                    Details
                 </a>
            </li>
         {% endfor %}

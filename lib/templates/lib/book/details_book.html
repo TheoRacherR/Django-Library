@@ -17,22 +17,27 @@
     <p>Created at: {{ book.creation_date |date:"d M Y h:i" }}</p>
     <p>Last update : {{ book.modification_date |date:"d M Y h:i" }}</p>
 
+    <div class="bloc_details">
 
-    <h3>Instances</h3>
+    
+        <h3>Instances</h3>
 
-    {% if instances %}
+        {% if instances %}
 
-        {% for instance in instances %}
-            
-        {% endfor %}
-
-        <ul class="list-group">
             {% for instance in instances %}
-                <li class="list-group-item d-flex justify-content-between align-items-center"> 
-                    {{ instance.pk }} / {{ instance.id_books.title }} / Library: {{ instance.id_library.name }} / {{ instance.creation_date|date:"d M Y h:i" }}
-                </li>
+                
             {% endfor %}
-        </ul>
-    {% endif %}
+
+            <ul class="list-group">
+                {% for instance in instances %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center"> 
+                        {{ instance.pk }} / {{ instance.id_books.title }} / Library: {{ instance.id_library.name }} / {{ instance.creation_date|date:"d M Y h:i" }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No instances</p>
+        {% endif %}
+    </div>
 
 {% endblock content %}

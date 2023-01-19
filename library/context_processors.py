@@ -23,5 +23,5 @@ def extras(request):
         'context_instances': instances,
         'context_lecture_group': lecture_group,
         'context_lecturer': lecturer,
-        'context_forum': forum,
+        'context_forums': forum,
     }

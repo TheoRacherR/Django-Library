@@ -90,14 +90,14 @@ urlpatterns = [
     path('admin/bookgroup/page/<int:id>/', views.details_lg_admin, name='details_lg_admin'), #admin, bookseller
 
 
-    path('admin/forum/page/<int:id>/', views.forum_page_admin, name="forum_page_admin"), #admin, bookseller
-    path('admin/forum/list/', views.list_forum_admin, name="list_forum_admin"), #admin, bookseller
-    path('admin/forum/add/', views.add_forum_admin, name="add_forum_admin"), #admin, bookseller
-    path('admin/forum/edit/<int:id>/', views.edit_forum_admin, name="edit_forum_admin"), #admin, bookseller
-    path('admin/forum/delete/<int:id>/', views.delete_forum_admin, name="delete_forum_admin"), #admin, bookseller
-    path('admin/forum/message/list/<int:id>/', views.list_message_admin, name="list_message_admin"), #admin, bookseller
-    path('admin/forum/message/edit/<int:id>/', views.edit_message_admin, name="edit_message_admin"), #admin, bookseller
-    path('admin/forum/message/delete/<int:id>/', views.delete_message_admin, name="delete_forum_admin"), #admin, bookseller
+    # path('admin/forum/page/<int:id>/', views.forum_page_admin, name="forum_page_admin"), #admin, bookseller
+    # path('admin/forum/list/', views.list_forums_admin, name="list_forums_admin"), #admin, bookseller
+    # path('admin/forum/add/', views.add_forum_admin, name="add_forum_admin"), #admin, bookseller
+    # path('admin/forum/edit/<int:id>/', views.edit_forum_admin, name="edit_forum_admin"), #admin, bookseller
+    # path('admin/forum/delete/<int:id>/', views.delete_forum_admin, name="delete_forum_admin"), #admin, bookseller
+    # path('admin/forum/message/list/<int:id>/', views.list_message_admin, name="list_message_admin"), #admin, bookseller
+    # path('admin/forum/message/edit/<int:id>/', views.edit_message_admin, name="edit_message_admin"), #admin, bookseller
+    # path('admin/forum/message/delete/<int:id>/', views.delete_message_admin, name="delete_forum_admin"), #admin, bookseller
 
 
 ]
