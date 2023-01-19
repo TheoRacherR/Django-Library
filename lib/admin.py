@@ -2,37 +2,37 @@ from django.contrib import admin
 from .models import (UserData, Library, Librarian, Collection, Genre, Books, InstanceBook, LectureGroup, Lecturer, Forum, Message, LectureGroupDetails)
 
 class LibrarianAdmin(admin.ModelAdmin):
-    list_display = ("id_user", "id_library")    
+    list_display = ("id", "id_user", "id_library")    
 
 class InstanceAdmin(admin.ModelAdmin):
-    list_display = ('id_user', 'id_books', 'id_library', 'borrowing_date', 'max_date', 'status')
+    list_display = ("id", 'id_user', 'id_books', 'id_library', 'borrowing_date', 'max_date', 'status')
 
 class LecturerAdmin(admin.ModelAdmin):
-    list_display = ('id_user', 'id_lg')
+    list_display = ("id", 'id_user', 'id_lg')
 
 class LibraryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address_name','address_city','address_country','address_zip_code','creation_date', 'modification_date')
+    list_display = ("id", 'name', 'address_name','address_city','address_country','address_zip_code','creation_date', 'modification_date')
 
 class CollectionAdmin(admin.ModelAdmin):
-    list_display = ('name','creation_date', 'modification_date')
+    list_display = ("id", 'name','creation_date', 'modification_date')
 
 class GenreAdmin(admin.ModelAdmin):
-    list_display = ('name','creation_date', 'modification_date')
+    list_display = ("id", 'name','creation_date', 'modification_date')
 
 class BooksAdmin(admin.ModelAdmin):
-    list_display = ('collection', 'genre', 'title', 'author', 'url_image', 'publisher', 'creation_date', 'modification_date')
+    list_display = ("id", 'collection', 'genre', 'title', 'author', 'url_image', 'publisher', 'creation_date', 'modification_date')
 
 class LectureGroupAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'title', 'address','creation_date', 'modification_date')
+    list_display = ("id", 'owner', 'title', 'address','creation_date', 'modification_date')
 
 class ForumAdmin(admin.ModelAdmin):
-    list_display= ('title','creation_date', 'modification_date')
+    list_display= ("id", 'title','creation_date', 'modification_date')
 
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ('id_user', 'id_forum', 'text', 'creation_date', 'modification_date')
+    list_display = ("id", 'id_user', 'id_forum', 'text', 'creation_date', 'modification_date')
 
 class UserDataAdmin(admin.ModelAdmin):
-    list_display = ('user', 'role')
+    list_display = ("id", 'user', 'role')
 
 
 

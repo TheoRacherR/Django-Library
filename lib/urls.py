@@ -69,6 +69,7 @@ urlpatterns = [
     path('admin/library/list/', views.list_libraries_admin, name='list_libraries_admin'), #admin, bookseller
     path('admin/library/page/<int:id>/', views.library_page_admin, name='library_page_admin'), #admin, bookseller
 
+    path('admin/librarian/delete/<int:id>/', views.delete_librarian_admin, name='delete_librarian_admin'), #admin
 
     path('admin/users/list/', views.list_users_admin, name='list_users_admin'), #admin, bookseller
     path('admin/users/edit/<int:id>/', views.edit_user_admin, name='edit_user_admin'), #admin

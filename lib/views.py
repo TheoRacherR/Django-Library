@@ -16,6 +16,7 @@ from rolepermissions.roles import assign_role, remove_role
 
 import datetime
 
+import folium
 
 
 
@@ -32,19 +33,6 @@ def admin(request):
         messages.error(request, '403, Access denied')
         return redirect('index')
     return render(request, 'admin/index.html')
-
-
-# #Checks
-# def check_if_admin(request):
-#     if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
-#         messages.error(request, '403, Access denied')
-#         return render(request, "lib/index.html")
-#         # return redirect('index')
-
-# def check_if_admin_or_bookseller(request):
-#     if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
-#         messages.error(request, '403, Access denied')
-#         return redirect('index')
 
 
 
@@ -553,7 +541,8 @@ def list_libraries_admin(request):
     if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
         messages.error(request, '403, Access denied')
         return redirect('index')
-    return render(request, "admin/library/list_libraries.html")
+    else :
+        return render(request, "admin/library/list_libraries.html")
 
 def edit_library_admin(request, id):
     try:
@@ -1215,6 +1204,16 @@ def list_message_admin(request):
     return render(request, "admin/forum/list_message.html")
 
 
+#Librarian
 
+def delete_librarian_admin(request,id):
+    try:
+        message = Librarian.objects.get(pk=id)
+        message.delete()
+        messages.success(request, "Librarian deleted")
+        return render(request, "admin/forum/list_message.html")
 
+    except Librarian.DoesNotExist:
+        messages.error(request, "Error")
+        return redirect("index")
 
