@@ -9,11 +9,15 @@ urlpatterns = [
     path('signin/', views.signin_def, name='signin_def'),
     path('login/', views.login_def, name='login_def'),
     path('logout/', views.logout_def, name='logout_def'),
+    path('search/', views.search, name='search'),
 
     path('book/page/<int:id>/', views.details_book, name='book_page'),
     path('book/list/lib=<int:idL>&col=<int:idC>&gen=<int:idG>', views.list_books, name='list_books'),
     path('book/borrow/list/', views.list_borrows, name='list_book_borrowed'),
     #user account
+    path('user/page/', views.user_page, name='user_page'),
+    path('user/edit/', views.edit_user, name='edit_user'),
+
     path('bookgroup/add', views.add_lecture_group, name='add_lecture_group'),
     path('bookgroup/detail/<int:id>/', views.lg_page, name='lg_page'),
     # path('bookgroup/mylist/', views.list_lecture_group, name='list_lecture_group'),

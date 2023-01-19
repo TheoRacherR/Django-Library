@@ -103,21 +103,41 @@
         {% endif %}
       </span>
 
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-        <button class="btn btn-outline-success" type="submit">Search</button>
+      <form action="{% url 'search' %}" method="post">
+        {% csrf_token %}
+        <fieldset>
+          <div>
+            <input type="text" name="search" class="form-control" id="search" placeholder="Search" aria-label="Search">
+          </div>
+        </fieldset>
       </form>
-      {% if user.is_authenticated %}
-        <form action="{% url 'logout_def' %}" method="post">
-          {% csrf_token %}
-          <fieldset>
-            <input type="submit" class="btn btn-secondary button_logout" value="Logout" />
-          </fieldset>
-        </form>
-      {% else %}
-        <a class="btn btn-primary button_login" href="{% url 'login_def' %}" role="button">Log in</a>
-        <a class="btn btn-success button_singin" href="{% url 'signin_def' %}" role="button">Sign in</a>
-      {% endif %}
+
+
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-fill"></i>
+          </a>
+          <ul class="dropdown-menu">
+            {% if user.is_authenticated %}
+              <li>
+                <a class="dropdown-item" href="{% url 'user_page' %}">Account</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'logout_def' %}">Logout</a>
+              </li>
+            {% else %}
+              <li>
+                <a class="dropdown-item" href="{% url 'login_def' %}">Log in</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'signin_def' %}">Sign in</a>
+              </li>
+            {% endif %}
+          </ul>
+        </li>
+      </ul>
+
     </div>
   </div>
 </nav>

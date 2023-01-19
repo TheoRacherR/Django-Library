@@ -17,6 +17,7 @@ from rolepermissions.roles import assign_role, remove_role
 import datetime
 
 import folium
+import geocoder
 
 
 
@@ -27,13 +28,42 @@ def index(request):
 def not_founded(request):
     return render(request, 'lib/404.html')
 
+def search(request):
+    try:
+        if request.method == 'POST':
+            search = request.POST['search']
+            location = geocoder.osm(search)
+            lat = location.lat
+            lng = location.lng
+            m = folium.Map(location=[lat, lng], zoom_start=12)
+            folium.Marker(location=[lat, lng], popup=search, icon=folium.Icon("red"), tooltip="Click here").add_to(m)
+
+            librarys = Library.objects.all()
+            for lib in librarys:
+                address = lib.address_name + ', ' + lib.address_zip_code + ' ' + lib.address_city
+                location = geocoder.osm(address)
+                lat = location.lat
+                lng = location.lng
+                folium.Marker(location=[lat, lng], popup= lib.name + ' ' + address, tooltip="Click here").add_to(m)
+                # folium.map.Popup(html="<div>" + address + "</div>")
+
+            m = m._repr_html_()
+            return render(request, "lib/search.html", { 'm': m })
+        
+        else:
+            return redirect('index')
+
+    except Library.DoesNotExist:
+        messages.error(request, "Erro")
+        return redirect("index")
+
+
 #admin
 def admin(request):
     if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
         messages.error(request, '403, Access denied')
         return redirect('index')
     return render(request, 'admin/index.html')
-
 
 
 ##Auth
@@ -157,6 +187,8 @@ def list_books(request, idL, idC, idG):
 
     else:
 
+        m = ''
+
         if idL != 0:
             library = Library.objects.get(pk=idL)
             lib = InstanceBook.objects.filter(id_library=library)
@@ -166,6 +198,12 @@ def list_books(request, idL, idC, idG):
                     list_b.append(l.id_books.pk)
             books = Books.objects.filter(id__in=list_b)
             search = "Library: '" + library.name + "'"
+            location = geocoder.osm(library.address_name + ', ' + library.address_zip_code + ' ' + library.address_city)
+            lat = location.lat
+            lng = location.lng
+            m = folium.Map(location=[lat, lng], zoom_start=12)
+            folium.Marker([lat, lng]).add_to(m)
+            m = m._repr_html_()
 
 
         elif idG != 0:
@@ -183,7 +221,7 @@ def list_books(request, idL, idC, idG):
             books = Books.objects.all()
             search = "All books"
         
-    return render(request, 'lib/book/list_books.html', {'books': books, 'search': search})
+    return render(request, 'lib/book/list_books.html', {'books': books, 'search': search, 'm': m })
 
 #admin
 def details_book_admin(request, id):
@@ -594,6 +632,60 @@ def library_page_admin(request, id):
 
 
 ##User
+#site
+
+def user_page(request):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Your are not connected')
+        return redirect('login_def')
+    
+    user = request.user
+    user_data = UserData.objects.get(user=user)
+    librarian = Librarian.objects.filter(id_user=user)
+    instance = InstanceBook.objects.filter(id_user=user)
+    lecture_group = LectureGroup.objects.filter(owner=user)
+    lecturer = Lecturer.objects.filter(id_user=user)
+    message = Message.objects.filter(id_user=user)
+
+    context = {
+        'user': user,
+        'user_data': user_data,
+        'librarian': librarian,
+        'instance': instance,
+        'lecture_group': lecture_group,
+        'lecturer': lecturer,
+        'message': message,
+    }
+    return render(request, 'lib/user/user_page.html', context)
+
+def edit_user(request):
+    try:
+        if not request.user.is_authenticated:
+            messages.error(request, 'Your are not connected')
+            return redirect('login_def')
+
+        user = request.user
+  
+        if request.method == 'POST':
+            
+            user.username = request.POST["username"]
+            user.email = request.POST["email"]
+            user.first_name = request.POST["first_name"]
+            user.last_name = request.POST["last_name"]
+            user.save()
+
+            messages.success(request, "user modified")
+            return redirect('user_page')
+
+
+        else:
+            return render(request, "lib/user/edit_user.html", { "user": user })
+
+    except User.DoesNotExist:
+        return redirect("index")
+
+#edit user
+
 #admin
 def page_user(request, id):
     if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
@@ -1146,23 +1238,6 @@ def forum_page_admin(request,id):
         messages.error(request, 'error')
         return redirect('list_forum_admin')
 
-# def add_message_admin(request,id):
-#     try:
-#         if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
-#             messages.error(request, '403, Access denied')
-#             return redirect('index')
-#         message = Message()
-#         message.id_user = User.objects.get(id=request.POST['user'])
-#         message.id_forum = Forum.objects.get(id=id)
-#         message.text = request.POST['text']
-#         message.save()
-#         messages.success(request, "Message edited")
-#         return render("list_message_admin")
-
-#     except Message.DoesNotExist:
-#         messages.error(request, "Error")
-#         return render("list_message_admin")
-
 def edit_message_admin(request,id):
     try:
         if request.user.is_authenticated and UserData.objects.get(user=request.user).role not in ['admin', 'bookseller']:
@@ -1205,6 +1280,11 @@ def list_message_admin(request):
 
 
 #Librarian
+#admin
+
+# def list_librarians_admin
+
+#def add_librarian_admin
 
 def delete_librarian_admin(request,id):
     try:

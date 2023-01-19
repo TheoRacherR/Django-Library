@@ -1,0 +1,132 @@
+{% extends 'lib/index.html' %}
+
+{% block title %}
+  Details of "{{ user.username }}"
+{% endblock title %}
+
+{% block content %}
+    {% load permission_tags %}
+
+    <h2>Details of your informations</h2>
+
+    <p><span style="font-weight: bold">Username: </span>
+        {% if user.username == '' %}
+            <span style="font-style: italic">empty</span>
+        {% else %}
+            {{ user.username }}
+        {% endif %}
+    </p>
+
+    <p><span style="font-weight: bold">Email: </span>
+        {% if user.email == '' %}
+            <span style="font-style: italic">empty</span>
+        {% else %}
+            {{ user.email }}
+        {% endif %}
+    </p>
+
+    <p><span style="font-weight: bold">First name: </span>
+        {% if user.first_name == '' %}
+            <span style="font-style: italic">empty</span>
+        {% else %}
+            {{ user.first_name }}
+        {% endif %}
+    </p>
+
+    <p><span style="font-weight: bold">Last name: </span>
+        {% if user.last_name == '' %}
+            <span style="font-style: italic">empty</span>
+        {% else %}
+            {{ user.last_name }}
+        {% endif %}
+    </p>
+
+    <p><span style="font-weight: bold">Role: </span>
+        {% if user_data.role == '' %}
+            <span style="font-style: italic">no role</span>
+        {% else %}
+            {{ user_data.role }}
+        {% endif %}
+    </p>
+
+    <p>
+        <span style="font-weight: bold">Created at: </span>{{ user.date_joined |date:"d M Y h:i" }}
+    </p>
+
+    <a class="btn btn-warning" href="{% url 'edit_user' %}" role="button">Edit your informations</a>
+
+
+    
+    {% comment %} librarian {% endcomment %}
+    {% if librarian %}
+        <h3>List of the Libraries you are employed in: </h3>
+        {% for lib in librarian %}
+        
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    
+                    <a href="{% url 'library_page_admin' lib.id_library.pk %}" role="button">
+                        {{ lib.id_library.name }}
+                    </a>
+                </li>
+            </ul>
+        {% empty %}
+            No data
+        {% endfor %}
+    {% endif %}
+
+    {% comment %} instance {% endcomment %}
+    <h3>You have borrowed those books</h3>
+    {% for inst in instance %}
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ inst.id_books.title }} 
+                at the library {{ inst.id_library.name }}, 
+                borrowed the {{ inst.borrowing_date|date:"d M Y"}} 
+                through {{ inst.max_date|date:"d M Y"}}
+            </li>
+        </ul>
+    {% empty %}
+        No data
+    {% endfor %}
+
+    {% comment %} lecture_group {% endcomment %}
+    <h3>You are the owner of thoses book groups</h3>
+    {% for lg in lecture_group %}
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ lg.pk }} / {{ lg.title }} / {{ lg.address }}
+            </li>
+        </ul>
+    {% empty %}
+        No data
+    {% endfor %}
+
+    {% comment %} lecturer {% endcomment %}
+    <h3>You are in thoses book groups</h3>
+    {% for le in lecturer %}
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ le.pk }} / {{ le.id_lg.title }}
+            </li>
+        </ul>
+    {% empty %}
+        No data
+    {% endfor %}
+
+    {% comment %} message {% endcomment %}
+    {% comment %} <h3>This user send those messanges in the forum</h3>
+    {% for mess in message %}
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ mess.pk }} / Forum: {{ mess.id_forum.title }} / 
+                Message: {{ mess.text|slice:'10'}}
+                {% if mess.text|length > 12 %}...{% endif %}
+            </li>
+        </ul>
+    {% empty %}
+        No data
+    {% endfor %} {% endcomment %}
+
+
+{% endblock content %}

@@ -1,0 +1,12 @@
+{% extends 'lib/index.html' %}
+
+{% block title %}
+  Result of your searching
+{% endblock title %}
+
+{% block content %}
+    {% load permission_tags %}
+
+    {{ m|safe }}
+
+{% endblock content %}
